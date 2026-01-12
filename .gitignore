@@ -1,0 +1,11 @@
+# Dépendances
+node_modules
+/server/node_modules
+/client/node_modules
+
+# Environnement
+.env
+.DS_Store
+
+# Build React
+/client/build
