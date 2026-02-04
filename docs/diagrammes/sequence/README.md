@@ -12,4 +12,4 @@ Ce dossier contient les diagrammes de séquence du projet.
 3. **Traiter un conflit ponctuel** : Résolution des conflits détectés.
 
 4. **Modifier un emploi du temps** : Ajustement des réservations existantes.
-! [Modifier un emploi du temps](./diagramme_sequence_Modifier%20_un%20_emploi%20_du_%20temps.png)
+![Modifier un emploi du temps](./diagramme_sequence_Modifier%20_un%20_emploi%20_du_%20temps.png)
