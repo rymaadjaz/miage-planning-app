@@ -25,3 +25,32 @@ Rendu attendu :
 Oral
 Demo
 Soutenance
+
+////////////////////////////////FRONTEND ////////////////////////////////
+
+////////Cirine////////
+
+Page : Login
+Page : Dashboard
+Page : Emploi du Temps (Calendrier)
+Page : Gestion des Salles
+Page : Gestion des Conflits
+
+////////Lina////////
+
+Page : Filtres de l'Emploi du Temps
+Page : Gestion des Utilisateurs
+Page : Réservation de salles
+
+////////////////////////////////BACKEND & LOGIQUE ////////////////////////////////
+
+////////Ryma////////
+
+API (Création, modification, suppression pour Salles, Cours, Cohortes)
+Logique des réservations côté serveur
+
+////////Edris////////
+
+Authentification & Sécurité (Logins)
+Algorithme de détection des conflits
+Base de données globale
