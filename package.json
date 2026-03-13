@@ -1,0 +1,20 @@
+{
+  "name": "gestion-emploi-du-temps",
+  "version": "1.0.0",
+  "description": "Gestion des emplois du temps universitaires (Express + SQLite)",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "nodemailer": "^8.0.2",
+    "sqlite3": "^5.0.2",
+    "tar": "^7.5.11"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
