@@ -1,0 +1,26 @@
+
+# Environnement
+.env
+.DS_Store
+
+# Build React
+/client/build
+
+# Dépendances (trop lourd pour Git)
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Sécurité (NE JAMAIS PUSH CE FICHIER)
+.env
+server/.env
+
+# Base de données locale (pour éviter de push tes tests)
+server/db/*.db
+server/db/*.db-journal
+
+# Logs et divers
+npm-debug.log*
+.DS_Store
+dist/
+build/

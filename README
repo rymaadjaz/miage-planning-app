@@ -1,0 +1,56 @@
+Projet Universitaire MIAGE 2026
+
+Cette application web permet de gérer et de planifier les emplois du temps universitaires en tenant compte des contraintes des enseignants, des étudiants et des salles.
+Elle offre des outils de visualisation, de réservation des ressources et de détection des conflits, tout en facilitant la coordination entre les différents acteurs de l’université.
+
+## Fonctionnalités principales
+- Gestion des emplois du temps (cours, examens, événements)
+- Visualisation des plannings par étudiant, enseignant ou groupe
+- Réservation et gestion des salles et ressources
+- Détection des conflits (chevauchements, indisponibilités)
+- Coordination entre les différents acteurs de l’université
+## Analyse Fonctionnelle
+Analyse fonctionnelle de la plateforme de gestion des emplois du temps universitaires définissant les besoins des acteurs (étudiants, enseignants, administratifs), la gestion des ressources, la planification et la résolution des conflits.
+Le système vise une organisation optimisée, automatisée et cohérente des emplois du temps et des réservations.
+
+
+2/02 : Evaluation Modelisation
+
+Rendu attendu :
+-Realisation Projet  
+-Journal Git 
+-Doc(ReadME etc ..)
+-Demo
+
+Oral
+Demo
+Soutenance
+
+////////////////////////////////FRONTEND ////////////////////////////////
+
+////////Cirine////////
+
+Page : Login
+Page : Dashboard
+Page : Emploi du Temps (Calendrier)
+Page : Gestion des Salles
+Page : Gestion des Conflits
+
+////////Lina////////
+
+Page : Filtres de l'Emploi du Temps
+Page : Gestion des Utilisateurs
+Page : Réservation de salles
+
+////////////////////////////////BACKEND & LOGIQUE ////////////////////////////////
+
+////////Ryma////////
+
+API (Création, modification, suppression pour Salles, Cours, Cohortes)
+Logique des réservations côté serveur
+
+////////Edris////////
+
+Authentification & Sécurité (Logins)
+Algorithme de détection des conflits
+Base de données globale
