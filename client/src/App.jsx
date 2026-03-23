@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import CalendarPage from './pages/CalendarPage';
-import EtudiantPage from './pages/EtudiantPage';
+import CalendarPage from './enseignant/pages/EnseignantCalendar';
+import EtudiantPage from './etudiant/pages/EtudiantPage';
 import CohortesPage from './pages/CohortesPage';
 
 import AdminLayout from './admin/layout/AdminLayout';

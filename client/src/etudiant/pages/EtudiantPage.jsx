@@ -1,9 +1,9 @@
 // src/pages/EtudiantPage.jsx
 import { useState } from "react";
-import Navbar from "../components/Navbar";
-import WeekNavigator from "../components/WeekNavigator";
-import WeekCalendar from "../components/WeekCalendar";
-import { mockEtudiantCours, mockEnseignants } from "../data/mockData";
+import Navbar from "../../components/Navbar";
+import WeekNavigator from "../../components/WeekNavigator";
+import WeekCalendar from "../../components/WeekCalendar";
+import { mockEtudiantCours, mockEnseignants } from "../../data/mockData";
 
 const pageStyles = `
   .etu-page {
