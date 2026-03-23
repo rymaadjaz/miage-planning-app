@@ -1,12 +1,17 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
+// Pages globales
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import CalendarPage from './enseignant/pages/EnseignantCalendar';
-import EtudiantPage from './etudiant/pages/EtudiantPage';
-import CohortesPage from './pages/CohortesPage';
 
+// Enseignant
+import EnseignantCalendar from './enseignant/pages/EnseignantCalendar';
+
+// Étudiant
+import EtudiantPage from './etudiant/pages/EtudiantPage';
+
+// Admin
 import AdminLayout from './admin/layout/AdminLayout';
 import AdminDashboard from './admin/pages/AdminDashboard';
 import AdminGeneration from './admin/pages/AdminGeneration';
@@ -16,16 +21,15 @@ import AdminSalles from './admin/pages/AdminSalles';
 import AdminUtilisateurs from './admin/pages/AdminUtilisateurs';
 
 function App() {
-  
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<CalendarPage />} />
+        <Route path="/" element={<EnseignantCalendar />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/calendar" element={<CalendarPage />} />
+        <Route path="/calendar" element={<EnseignantCalendar />} />
         <Route path="/etudiant" element={<EtudiantPage />} />
-        <Route path="/cohortes" element={<CohortesPage />} />
+
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="generation" element={<AdminGeneration />} />
