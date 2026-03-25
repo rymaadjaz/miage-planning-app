@@ -1,6 +1,6 @@
 const { getDbConnection } = require('../db/database');
 
-exports.getUsers = async (req, res) => {
+exports.getUsers = async (req, res) => { //Teste début pour afficher les users
   try {
     const db = await getDbConnection();
     const users = await db.all('SELECT * FROM Utilisateur');

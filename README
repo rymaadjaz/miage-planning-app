@@ -1,56 +1,171 @@
-Projet Universitaire MIAGE 2026
+# 📊 Projet Universitaire MIAGE 2026
 
-Cette application web permet de gérer et de planifier les emplois du temps universitaires en tenant compte des contraintes des enseignants, des étudiants et des salles.
-Elle offre des outils de visualisation, de réservation des ressources et de détection des conflits, tout en facilitant la coordination entre les différents acteurs de l’université.
+## 📖 Description
 
-## Fonctionnalités principales
-- Gestion des emplois du temps (cours, examens, événements)
-- Visualisation des plannings par étudiant, enseignant ou groupe
-- Réservation et gestion des salles et ressources
-- Détection des conflits (chevauchements, indisponibilités)
-- Coordination entre les différents acteurs de l’université
-## Analyse Fonctionnelle
-Analyse fonctionnelle de la plateforme de gestion des emplois du temps universitaires définissant les besoins des acteurs (étudiants, enseignants, administratifs), la gestion des ressources, la planification et la résolution des conflits.
-Le système vise une organisation optimisée, automatisée et cohérente des emplois du temps et des réservations.
+Ce projet consiste à concevoir et développer une application web dédiée à la **gestion et planification des emplois du temps universitaires**.
+
+L’application permet de centraliser les informations liées aux cours, aux salles et aux utilisateurs afin d’optimiser l’organisation académique. Elle répond aux problématiques classiques des universités :
+
+- **Complexité de planification** : gérer des centaines de créneaux sans erreurs  
+- **Multiplicité des acteurs** : étudiants, enseignants et administratifs  
+- **Gestion des conflits** : éviter les chevauchements de ressources  
+
+👉 **Objectif** : proposer un système **automatisé, clair et efficace**.
+
+---
+
+## 🎯 Objectifs
+
+- 📅 **Planifier** les emplois du temps universitaires  
+- 🔍 **Détecter** automatiquement les conflits  
+- 🏫 **Gérer** les salles et ressources  
+- 👨‍🏫 **Faciliter** la coordination entre acteurs  
+- 📊 **Offrir** des outils de visualisation  
+
+---
+
+## ⚙️ Fonctionnalités principales
+
+- **Gestion globale** : cours, examens et événements  
+- **Visualisation personnalisée** : étudiant / enseignant / groupe  
+- **Réservation de salles**  
+- **Détection intelligente des conflits**  
+- **Coordination multi-utilisateurs**  
+
+---
+
+## 🧠 Analyse Fonctionnelle
+
+### 👥 Acteurs
+- **Étudiant** : consultation du planning  
+- **Enseignant** : gestion des cours et disponibilités  
+- **Administratif** : gestion globale du système  
+
+### 📌 Objectifs du système
+- Organisation optimisée  
+- Centralisation des données  
+- Réduction des erreurs  
+- Automatisation de la planification  
+
+---
+
+## 🏗️ Structure du projet
+
+```bash
+miage-planning-app/
+│
+├── client/ 
+│   ├── pages/
+│   │   ├── Login
+│   │   ├── Dashboard
+│   │   ├── EmploiDuTemps
+│   │   ├── Salles
+│   │   ├── Conflits
+│   │   ├── Filtres
+│   │   ├── Utilisateurs
+│   │   └── Reservation
+│
+├── server/ 
+│   ├── controllers/
+│   ├── db/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│
+├── docs/
+│
+├── README.md
+├── journal.txt
+├── Rapport Projet S6.md
+└── package.json
+```
+
+---
+
+## 🎨 Répartition Frontend
+
+### 👩‍💻 Belkacemi CIRINE
+- Login  
+- Dashboard  
+- Emploi du Temps  
+- Gestion des Salles  
+- Gestion des Conflits  
+
+### 👩‍💻 Lina EL HATHOUT
+- Filtres  
+- Gestion des Utilisateurs  
+- Réservation  
 
 
-2/02 : Evaluation Modelisation
 
-Rendu attendu :
--Realisation Projet  
--Journal Git 
--Doc(ReadME etc ..)
--Demo
+## 🔧 Backend & Logique
 
-Oral
-Demo
-Soutenance
+### 👩‍💻 Adjaz RYMA
+- API REST (CRUD : Salles, Cours, Cohortes)  
+- Logique de réservation  
 
-////////////////////////////////FRONTEND////////////////////////////////
+### 👨‍💻 Youssef EDRIS
+- Authentification & Sécurité (JWT)  
+- Détection des conflits  
+- Base de données  
 
-////////Cirine////////
 
-Page : Login
-Page : Dashboard
-Page : Emploi du Temps (Calendrier)
-Page : Gestion des Salles
-Page : Gestion des Conflits
+## 🧱 Architecture Technique
 
-////////Lina////////
+### Stack
+- Frontend : React.js  
+- Backend : Node.js + Express  
+- Base de données : SQLite  
 
-Page : Filtres de l'Emploi du Temps
-Page : Gestion des Utilisateurs
-Page : Réservation de salles
+### Architecture
+- Client / Serveur  
+- MVC (Model - Controller - Routes)  
+- API REST  
 
-////////////////////////////////BACKEND & LOGIQUE ////////////////////////////////
+---
 
-////////Ryma////////
+## 🚀 Installation
 
-API (Création, modification, suppression pour Salles, Cours, Cohortes)
-Logique des réservations côté serveur
+```bash
+git clone https://github.com/Edris-Y/miage-planning-app
+cd miage-planning-app
 
-////////Edris////////
+cd backend
+npm install
+node db/initDb.js
+npm run dev
 
-Authentification & Sécurité (Logins)
-Algorithme de détection des conflits
-Base de données globale
+cd ../frontend
+npm install
+npm start
+```
+
+---
+
+## 📅 Organisation du projet
+
+### Livrables
+- Code source  
+- Journal Git  
+- Documentation  
+- Démo  
+
+### Soutenance
+- Démo  
+- Présentation  
+
+---
+
+## 📌 Équipe
+
+- Lina EL HATHOUT  
+- Youssef EDRIS  
+- Belkacemi CIRINE  
+- Adjaz RYMA  
+
+
+
+
+## 📝 Licence
+
+Projet universitaire MIAGE 2026.
