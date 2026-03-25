@@ -6,7 +6,7 @@ import WeekCalendar from "../components/WeekCalendar";
 import { mockEtudiantCours, mockEnseignants } from "../data/mockData";
 
 const pageStyles = `
-  .etu-page {
+  .etu-page { 
     background: #f0f2f5;
     min-height: 100vh;
     font-family: 'Segoe UI', sans-serif;

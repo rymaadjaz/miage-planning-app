@@ -1,4 +1,3 @@
-// src/pages/CalendarPage.jsx
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 import WeekNavigator from "../components/WeekNavigator";

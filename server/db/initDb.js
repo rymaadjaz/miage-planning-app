@@ -4,12 +4,8 @@ async function init() {
   try {
     const db = await getDbConnection();
 
-    // Active les clés étrangères (désactivées par défaut sur SQLite)
     await db.exec(`PRAGMA foreign_keys = ON;`);
 
-    // ============================================================
-    // 1. UTILISATEUR
-    // ============================================================
     await db.exec(`
       CREATE TABLE IF NOT EXISTS Utilisateur (
         id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,9 +18,7 @@ async function init() {
       );
     `);
 
-    // ============================================================
-    // 2. COHORTE
-    // ============================================================
+   
     await db.exec(`
       CREATE TABLE IF NOT EXISTS Cohorte (
         id        INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,9 +28,7 @@ async function init() {
       );
     `);
 
-    // ============================================================
-    // 3. MATIERE
-    // ============================================================
+  
     await db.exec(`
       CREATE TABLE IF NOT EXISTS Matiere (
         id                  INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,9 +37,7 @@ async function init() {
       );
     `);
 
-    // ============================================================
-    // 4. SALLE
-    // ============================================================
+  
     await db.exec(`
       CREATE TABLE IF NOT EXISTS Salle (
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,9 +48,7 @@ async function init() {
       );
     `);
 
-    // ============================================================
-    // 5. EQUIPEMENT (lié à une salle)
-    // ============================================================
+    
     await db.exec(`
       CREATE TABLE IF NOT EXISTS Equipement (
         id       INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,9 +57,7 @@ async function init() {
       );
     `);
 
-    // ============================================================
-    // 6. ETUDIANT (extension de Utilisateur)
-    // ============================================================
+    
     await db.exec(`
       CREATE TABLE IF NOT EXISTS Etudiant (
         id              INTEGER PRIMARY KEY REFERENCES Utilisateur(id) ON DELETE CASCADE,
@@ -82,9 +68,7 @@ async function init() {
       );
     `);
 
-    // ============================================================
-    // 7. ENSEIGNANT (extension de Utilisateur)
-    // ============================================================
+    
     await db.exec(`
       CREATE TABLE IF NOT EXISTS Enseignant (
         id      INTEGER PRIMARY KEY REFERENCES Utilisateur(id) ON DELETE CASCADE,
@@ -93,9 +77,7 @@ async function init() {
       );
     `);
 
-    // ============================================================
-    // 8. DISPONIBILITE (créneaux dispo/indispo d'un enseignant)
-    // ============================================================
+    
     await db.exec(`
       CREATE TABLE IF NOT EXISTS Disponibilite (
         id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -107,9 +89,7 @@ async function init() {
       );
     `);
 
-    // ============================================================
-    // 9. SEANCE (cours planifié — table centrale de l'EDT)
-    // ============================================================
+   
     await db.exec(`
       CREATE TABLE IF NOT EXISTS Seance (
         id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -126,9 +106,7 @@ async function init() {
       );
     `);
 
-    // ============================================================
-    // 10. RESERVATION (lien Séance <-> Salle + gestion des demandes)
-    // ============================================================
+    
     await db.exec(`
       CREATE TABLE IF NOT EXISTS Reservation (
         id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -143,9 +121,7 @@ async function init() {
       );
     `);
 
-    // ============================================================
-    // 11. CONFLIT (détecté par l'algorithme — Edris)
-    // ============================================================
+    
     await db.exec(`
       CREATE TABLE IF NOT EXISTS Conflit (
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -159,9 +135,7 @@ async function init() {
       );
     `);
 
-    // ============================================================
-    // 12. HISTORIQUE (journal des modifications — règle de gestion)
-    // ============================================================
+    
     await db.exec(`
       CREATE TABLE IF NOT EXISTS Historique (
         id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -175,9 +149,7 @@ async function init() {
     `);
 
 
-    // ============================================================
-    // 14. INDEX (optimisation des requêtes de l'algorithme)
-    // ============================================================
+    
     await db.exec(`
       CREATE INDEX IF NOT EXISTS idx_seance_date       ON Seance(dateSeance);
       CREATE INDEX IF NOT EXISTS idx_seance_salle      ON Reservation(salle_id, seance_id);
@@ -186,9 +158,7 @@ async function init() {
       CREATE INDEX IF NOT EXISTS idx_conflit_resolu    ON Conflit(resolu);
     `);
 
-    // ============================================================
-    // DONNÉES DE TEST (insérées une seule fois si table vide)
-    // ============================================================
+   
     const count = await db.get('SELECT COUNT(*) as total FROM Utilisateur');
 
     if (count.total === 0) {
