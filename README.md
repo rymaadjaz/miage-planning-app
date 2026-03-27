@@ -54,18 +54,37 @@ L’application permet de centraliser les informations liées aux cours, aux sal
 ```bash
 miage-planning-app/
 │
-├── client/ 
-│   ├── pages/
-│   │   ├── Login
-│   │   ├── Dashboard
-│   │   ├── EmploiDuTemps
-│   │   ├── Salles
-│   │   ├── Conflits
-│   │   ├── Filtres
-│   │   ├── Utilisateurs
-│   │   └── Reservation
+├── client/
+│   ├── public/
+│   ├── src/
+│   │   ├── admin/
+│   │   │   ├── hooks/
+│   │   │   ├── layout/
+│   │   │   ├── pages/
+│   │   │   ├── services/
+│   │   │   └── styles/
+│   │   │
+│   │   ├── enseignant/
+│   │   │   ├── hooks/
+│   │   │   └── pages/
+│   │   │
+│   │   ├── etudiant/
+│   │   │   ├── hooks/
+│   │   │   └── pages/
+│   │   │
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── data/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── styles/
+│   │   ├── assets/
+│   │   ├── App.jsx
+│   │   └── index.js
+│   │
+│   └── package.json
 │
-├── server/ 
+├── server/
 │   ├── controllers/
 │   ├── db/
 │   ├── middleware/
@@ -73,7 +92,6 @@ miage-planning-app/
 │   ├── routes/
 │
 ├── docs/
-│
 ├── README.md
 ├── journal.txt
 ├── Rapport Projet S6.md
