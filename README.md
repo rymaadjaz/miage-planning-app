@@ -148,12 +148,14 @@ miage-planning-app/
 git clone https://github.com/Edris-Y/miage-planning-app
 cd miage-planning-app
 
-cd backend
+# Backend
+cd server
 npm install
 node db/initDb.js
 npm run dev
 
-cd ../frontend
+# Frontend
+cd ../client
 npm install
 npm start
 ```
