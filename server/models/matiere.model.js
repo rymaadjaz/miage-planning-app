@@ -1,25 +1,74 @@
 const { dbAll, dbGet, dbRun } = require("../db/dbAsync");
 
 exports.findAll = () =>
-  dbAll(`SELECT * FROM Matiere ORDER BY nom ASC`);
+  dbAll(`
+    SELECT
+      e.id,
+      e.nom,
+      e.salle_id,
+      s.code AS salle_code
+    FROM Equipement e
+    LEFT JOIN Salle s ON e.salle_id = s.id
+    ORDER BY e.nom ASC
+  `);
 
 exports.findById = (id) =>
-  dbGet(`SELECT * FROM Matiere WHERE id = ?`, [id]);
-
-exports.create = ({ nom, volumeHoraireTotal = 0 }) =>
-  dbRun(
-    `INSERT INTO Matiere (nom, volumeHoraireTotal)
-     VALUES (?, ?)`,
-    [nom, volumeHoraireTotal]
+  dbGet(
+    `
+    SELECT
+      e.id,
+      e.nom,
+      e.salle_id,
+      s.code AS salle_code
+    FROM Equipement e
+    LEFT JOIN Salle s ON e.salle_id = s.id
+    WHERE e.id = ?
+    `,
+    [id]
   );
 
-exports.update = (id, data) =>
+exports.findBySalleId = (salleId) =>
+  dbAll(
+    `
+    SELECT
+      e.id,
+      e.nom,
+      e.salle_id,
+      s.code AS salle_code
+    FROM Equipement e
+    LEFT JOIN Salle s ON e.salle_id = s.id
+    WHERE e.salle_id = ?
+    ORDER BY e.nom ASC
+    `,
+    [salleId]
+  );
+
+exports.create = ({ nom, salle_id }) =>
   dbRun(
-    `UPDATE Matiere
-     SET nom = ?, volumeHoraireTotal = ?
-     WHERE id = ?`,
-    [data.nom, data.volumeHoraireTotal, id]
+    `
+    INSERT INTO Equipement (nom, salle_id)
+    VALUES (?, ?)
+    `,
+    [nom, salle_id]
+  );
+
+exports.update = (id, { nom, salle_id }) =>
+  dbRun(
+    `
+    UPDATE Equipement
+    SET
+      nom = ?,
+      salle_id = ?
+    WHERE id = ?
+    `,
+    [nom, salle_id, id]
   );
 
 exports.remove = (id) =>
-  dbRun(`DELETE FROM Matiere WHERE id = ?`, [id]);
+  dbRun(
+    `
+    DELETE FROM Equipement
+    WHERE id = ?
+    `,
+    [id]
+  );

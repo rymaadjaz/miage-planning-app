@@ -3,10 +3,22 @@ const router = express.Router();
 
 const asyncHandler = require("../middleware/asyncHandler");
 const authMiddleware = require("../middleware/authMiddleware");
+const historiquesController = require("../controllers/historiquesController");
 
-const controller = require("../controllers/historiquesController");
+const { authorizeRoles } = authMiddleware;
 
-router.get("/", authMiddleware, asyncHandler(controller.getAll));
-router.get("/:entite/:entite_id", authMiddleware, asyncHandler(controller.getByEntity));
+router.get(
+  "/",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(historiquesController.getAll)
+);
+
+router.get(
+  "/search/entity",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(historiquesController.getByEntity)
+);
 
 module.exports = router;

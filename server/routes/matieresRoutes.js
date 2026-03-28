@@ -2,22 +2,44 @@ const express = require("express");
 const router = express.Router();
 
 const asyncHandler = require("../middleware/asyncHandler");
-const validate = require("../middleware/validationMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
+const matieresController = require("../controllers/matieresController");
 
-const controller = require("../controllers/matieresController");
+const { authorizeRoles } = authMiddleware;
 
-router.get("/", asyncHandler(controller.getAll));
-router.get("/:id", asyncHandler(controller.getById));
+router.get(
+  "/",
+  authMiddleware,
+  authorizeRoles("enseignant", "administratif"),
+  asyncHandler(matieresController.getAll)
+);
+
+router.get(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("enseignant", "administratif"),
+  asyncHandler(matieresController.getById)
+);
 
 router.post(
   "/",
   authMiddleware,
-  validate(["nom"]),
-  asyncHandler(controller.create)
+  authorizeRoles("administratif"),
+  asyncHandler(matieresController.create)
 );
 
-router.put("/:id", authMiddleware, asyncHandler(controller.update));
-router.delete("/:id", authMiddleware, asyncHandler(controller.remove));
+router.put(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(matieresController.update)
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(matieresController.remove)
+);
 
 module.exports = router;

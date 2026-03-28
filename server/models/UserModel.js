@@ -1,10 +1,21 @@
-const { getDbConnection } = require('../db/database');
+const { dbGet } = require("../db/dbAsync");
 
-const UserModel = {
-  findByEmail: async (email) => {
-    const db = await getDbConnection();
-    return await db.get('SELECT * FROM Utilisateur WHERE email = ?', [email]);
-  }
-};
+exports.findByEmail = (email) =>
+  dbGet(
+    `
+    SELECT *
+    FROM Utilisateur
+    WHERE email = ?
+    `,
+    [email]
+  );
 
-module.exports = UserModel;
+exports.findById = (id) =>
+  dbGet(
+    `
+    SELECT id, nom, prenom, email, role
+    FROM Utilisateur
+    WHERE id = ?
+    `,
+    [id]
+  );

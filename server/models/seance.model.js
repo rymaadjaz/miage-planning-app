@@ -2,16 +2,42 @@ const { dbAll, dbGet, dbRun } = require("../db/dbAsync");
 
 exports.findAll = () =>
   dbAll(`
-    SELECT
-      se.*,
-      co.nom AS cohorte_nom
-    FROM Seance se
-    LEFT JOIN Cohorte co ON se.cohorte_id = co.id
-    ORDER BY se.dateSeance ASC, se.heureDebut ASC
+    SELECT *
+    FROM Seance
+    ORDER BY dateSeance ASC, heureDebut ASC
   `);
 
 exports.findById = (id) =>
-  dbGet(`SELECT * FROM Seance WHERE id = ?`, [id]);
+  dbGet(
+    `
+    SELECT *
+    FROM Seance
+    WHERE id = ?
+    `,
+    [id]
+  );
+
+exports.findByCohorteId = (cohorteId) =>
+  dbAll(
+    `
+    SELECT *
+    FROM Seance
+    WHERE cohorte_id = ?
+    ORDER BY dateSeance ASC, heureDebut ASC
+    `,
+    [cohorteId]
+  );
+
+exports.findByEnseignantId = (enseignantId) =>
+  dbAll(
+    `
+    SELECT *
+    FROM Seance
+    WHERE enseignant_id = ?
+    ORDER BY dateSeance ASC, heureDebut ASC
+    `,
+    [enseignantId]
+  );
 
 exports.create = ({
   dateSeance,
@@ -19,34 +45,87 @@ exports.create = ({
   duree,
   typeSeance,
   statut = "PLANIFIE",
+  description = null,
   matiere_id = null,
-  cohorte_id,
-  enseignant_id,
+  cohorte_id = null,
+  enseignant_id = null,
 }) =>
   dbRun(
-    `INSERT INTO Seance
-      (dateSeance, heureDebut, duree, typeSeance, statut, matiere_id, cohorte_id, enseignant_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [dateSeance, heureDebut, duree, typeSeance, statut, matiere_id, cohorte_id, enseignant_id]
+    `
+    INSERT INTO Seance (
+      dateSeance,
+      heureDebut,
+      duree,
+      typeSeance,
+      statut,
+      description,
+      matiere_id,
+      cohorte_id,
+      enseignant_id
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+    [
+      dateSeance,
+      heureDebut,
+      duree,
+      typeSeance,
+      statut,
+      description,
+      matiere_id,
+      cohorte_id,
+      enseignant_id,
+    ]
   );
 
-exports.update = (id, data) =>
+exports.update = (
+  id,
+  {
+    dateSeance,
+    heureDebut,
+    duree,
+    typeSeance,
+    statut,
+    description,
+    matiere_id,
+    cohorte_id,
+    enseignant_id,
+  }
+) =>
   dbRun(
-    `UPDATE Seance
-     SET dateSeance = ?, heureDebut = ?, duree = ?, typeSeance = ?, statut = ?, matiere_id = ?, cohorte_id = ?, enseignant_id = ?
-     WHERE id = ?`,
+    `
+    UPDATE Seance
+    SET
+      dateSeance = ?,
+      heureDebut = ?,
+      duree = ?,
+      typeSeance = ?,
+      statut = ?,
+      description = ?,
+      matiere_id = ?,
+      cohorte_id = ?,
+      enseignant_id = ?
+    WHERE id = ?
+    `,
     [
-      data.dateSeance,
-      data.heureDebut,
-      data.duree,
-      data.typeSeance,
-      data.statut,
-      data.matiere_id,
-      data.cohorte_id,
-      data.enseignant_id,
+      dateSeance,
+      heureDebut,
+      duree,
+      typeSeance,
+      statut,
+      description,
+      matiere_id,
+      cohorte_id,
+      enseignant_id,
       id,
     ]
   );
 
-exports.cancel = (id) =>
-  dbRun(`UPDATE Seance SET statut = 'ANNULE' WHERE id = ?`, [id]);
+exports.remove = (id) =>
+  dbRun(
+    `
+    DELETE FROM Seance
+    WHERE id = ?
+    `,
+    [id]
+  );

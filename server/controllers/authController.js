@@ -1,45 +1,58 @@
-const UserModel = require('../models/UserModel');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken'); // Importé mais pas encore utilisé
+const UserModel = require("../models/UserModel");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET manquant dans le fichier .env");
+}
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-  console.log("Tentative de login pour :", email);
+
+  if (!email || !password) {
+    return res.status(400).json({
+      message: "Email et mot de passe requis",
+    });
+  }
 
   try {
-    const user = await UserModel.findByEmail(email);
+    const user = await UserModel.findByEmail(String(email).trim());
+
     if (!user) {
-      console.log("Utilisateur non trouvé en base");
       return res.status(401).json({ message: "Identifiants invalides" });
     }
 
     const isMatch = await bcrypt.compare(password, user.mot_de_passe);
-    console.log("Résultat comparaison bcrypt :", isMatch);
 
     if (!isMatch) {
-      console.log("Mot de passe incorrect");
       return res.status(401).json({ message: "Identifiants invalides" });
     }
 
     const token = jwt.sign(
       { id: user.id, role: user.role },
-      process.env.JWT_SECRET, 
-      { expiresIn: '24h' }
+      JWT_SECRET,
+      { expiresIn: "24h" }
     );
 
-    res.json({
+    return res.json({
       message: "Connexion réussie",
-      token: token, 
+      token,
       user: {
         id: user.id,
         nom: user.nom,
         prenom: user.prenom,
-        role: user.role
-      }
+        email: user.email,
+        role: user.role,
+      },
     });
-
   } catch (error) {
-    console.error("Erreur serveur :", error); 
-    res.status(500).json({ error: error.message });
+    console.error("Erreur serveur login :", error);
+    return res.status(500).json({
+      message: "Erreur serveur",
+      error: error.message,
+    });
   }
 };

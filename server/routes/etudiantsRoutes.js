@@ -2,21 +2,44 @@ const express = require("express");
 const router = express.Router();
 
 const asyncHandler = require("../middleware/asyncHandler");
-const validate = require("../middleware/validationMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
-const controller = require("../controllers/etudiantsController");
+const etudiantsController = require("../controllers/etudiantsController");
 
-router.get("/", asyncHandler(controller.getAll));
-router.get("/:id", asyncHandler(controller.getById));
+const { authorizeRoles, authorizeSelfOrRoles } = authMiddleware;
+
+router.get(
+  "/",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(etudiantsController.getAll)
+);
+
+router.get(
+  "/:id",
+  authMiddleware,
+  authorizeSelfOrRoles("id", "administratif"),
+  asyncHandler(etudiantsController.getById)
+);
 
 router.post(
   "/",
   authMiddleware,
-  validate(["id", "numeroEtudiant"]),
-  asyncHandler(controller.create)
+  authorizeRoles("administratif"),
+  asyncHandler(etudiantsController.create)
 );
 
-router.put("/:id", authMiddleware, asyncHandler(controller.update));
-router.delete("/:id", authMiddleware, asyncHandler(controller.remove));
+router.put(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(etudiantsController.update)
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(etudiantsController.remove)
+);
 
 module.exports = router;
