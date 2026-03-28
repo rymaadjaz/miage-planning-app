@@ -27,18 +27,7 @@ function addMinutes(hhmm, minutes) {
   return `${String(eh).padStart(2, "0")}:${String(em).padStart(2, "0")}`;
 }
 
-function statusLabel(status = "") {
-  const s = String(status).toUpperCase();
-  if (s === "VALIDEE") return "VALIDÉE";
-  if (s === "EN_ATTENTE") return "EN ATTENTE";
-  if (s === "ANNULEE") return "REFUSÉE";
-  if (s === "PLANIFIEE") return "AJUSTÉE";
-  return status || "EN ATTENTE";
-}
 
-async function apiFetch(path, options = {}) {
-  return request(path, options);
-}
 
 export function setToken(token) {
   if (token) {
