@@ -1,0 +1,181 @@
+.etu-nav-card {
+  padding: 0;
+  margin-bottom: 14px;
+}
+
+.etu-filters-card {
+  margin-bottom: 14px;
+}
+
+.etu-filters-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+
+.etu-filters-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.etu-filters-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.etu-select {
+  text-align: left;
+}
+
+.etu-select-type {
+  min-width: 190px;
+}
+
+.etu-select-ens {
+  min-width: 210px;
+}
+
+.etu-legend-wrap {
+  margin-bottom: 12px;
+}
+
+.etu-dot-cm {
+  background: var(--cm);
+}
+
+.etu-dot-td {
+  background: var(--td);
+}
+
+.etu-dot-tp {
+  background: var(--tp);
+}
+
+.etu-dot-exam {
+  background: var(--exam);
+}
+
+.etu-calendar-card {
+  padding: 0;
+}
+
+.etu-notif-content {
+  max-width: 760px;
+}
+
+.etu-notif-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.etu-notif-title-block h2 {
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.etu-notif-title-block p {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.etu-notif-tabs-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.etu-notif-read-all {
+  font-size: 0.82rem;
+}
+
+.etu-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+}
+
+.etu-detail-notfound-content {
+  max-width: 520px;
+}
+
+.etu-detail-notfound-card {
+  text-align: center;
+  padding: 40px;
+}
+
+.etu-detail-notfound-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.etu-detail-notfound-title {
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.etu-detail-notfound-text {
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.etu-detail-content {
+  max-width: 560px;
+}
+
+.etu-detail-close-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.etu-detail-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.etu-detail-title-icon {
+  background: var(--primary);
+  flex-shrink: 0;
+}
+
+.etu-detail-title {
+  font-weight: 800;
+  font-size: 1.15rem;
+  margin-bottom: 2px;
+}
+
+.etu-detail-subtitle {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.etu-detail-badge-wrap {
+  margin-bottom: 20px;
+}
+
+.etu-detail-rows-top {
+  margin-top: 16px;
+}
+
+.etu-detail-time {
+  font-family: 'DM Mono', monospace;
+}
+
+.etu-detail-footer {
+  display: flex;
+  justify-content: flex-end;
+}

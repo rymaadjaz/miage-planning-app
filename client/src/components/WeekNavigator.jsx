@@ -1,5 +1,3 @@
-// src/Components/WeekNavigator.jsx
-
 const navigatorStyles = `
   .week-nav {
     display: flex;
