@@ -125,37 +125,52 @@ export async function login(email, password) {
   return payload;
 }
 
+// -------------------------------------------------------------
+// HYBRIDE MAPPING : Combine les données de main avec les noms de ta base
+// -------------------------------------------------------------
 function mapPlanningRow(row) {
+  const debut = row.heureDebut || row.debut || "00:00";
+  const duree = Number(row.duree || 0);
+  
   return {
     id: String(row.id),
-    matiere: row.matiere_nom || "Cours",
-    salle: row.salle_code || "-",
-    date: row.dateSeance,
-    debut: toHHMM(row.heureDebut),
-    fin: addMinutes(row.heureDebut, row.duree),
-    type: normalizeType(row.typeSeance),
-    enseignant: row.enseignant_nom || (row.enseignant_id ? `Enseignant ${row.enseignant_id}` : ""),
-    cohorte: row.cohorte_nom || "",
-    description: row.statut ? `Statut: ${row.statut}` : "",
+    matiere: row.matiere_nom || row.matiere || "Cours",
+    titre: row.matiere_nom || row.titre || row.matiere || "Séance",
+    salle: row.salle_code || row.salle || "-",
+    date: row.dateSeance || row.date || "",
+    debut: toHHMM(debut),
+    fin: row.fin ? toHHMM(row.fin) : addMinutes(debut, duree),
+    type: normalizeType(row.typeSeance || row.type),
+    enseignant: row.enseignant_nom || row.enseignant || (row.enseignant_id ? `Enseignant ${row.enseignant_id}` : ""),
+    cohorte: row.cohorte_nom || row.cohorte || "",
+    description: row.statut ? `Statut: ${row.statut}` : (row.description || ""),
+    statut: row.statut || "",
+    duree: duree,
   };
 }
 
-function mapReservationRow(row) {
+function mapReservationFrontRow(row) {
+  const debut = row.debut || row.heureDebut || "00:00";
+  const duree = Number(row.duree || 0);
+
   return {
     id: String(row.id),
-    seanceId: row.seance_id,
-    type: normalizeType(row.typeSeance),
-    date: row.dateSeance,
-    debut: toHHMM(row.heureDebut),
-    fin: addMinutes(row.heureDebut, row.duree),
-    cohorteId: row.cohorte_id,
-    cohorte: row.cohorte_nom || "-",
-    salleId: row.salle_id,
-    salle: row.salle_code || "-",
+    seanceId: row.seanceId || row.seance_id || null,
+    type: normalizeType(row.typeSeance || row.type),
+    date: row.dateSeance || row.date || "",
+    debut: toHHMM(debut),
+    fin: row.fin ? toHHMM(row.fin) : addMinutes(debut, duree),
+    cohorteId: row.cohorteId || row.cohorte_id || null,
+    cohorte: row.cohorte_nom || row.cohorte || "-",
+    salleId: row.salleId || row.salle_id || null,
+    salle: row.salle_code || row.salle || "-",
     statut: statusLabel(row.statut),
-    demandeType: row.demande_type || "CREATION",
-    sourceReservationId: row.source_reservation_id || null,
-    createdAt: row.created_at || new Date().toISOString(),
+    demandeType: row.demandeType || row.demande_type || "CREATION",
+    sourceReservationId: row.sourceReservationId || row.source_reservation_id || null,
+    createdAt: row.createdAt || row.created_at || new Date().toISOString(),
+    enseignant: row.enseignant_nom || row.enseignant || "",
+    motif: row.motif || "",
+    duree,
   };
 }
 
@@ -175,13 +190,17 @@ function mapSeanceRow(row) {
   };
 }
 
-export async function getEnseignantCours({ enseignantId = DEFAULT_ENSEIGNANT_ID } = {}) {
-  const rows = await apiFetch(`/api/planning/enseignant/${enseignantId}`);
+// -------------------------------------------------------------
+// REQUÊTES API PROTÉGÉES (Version de main avec auth: true)
+// -------------------------------------------------------------
+export async function getEnseignantCours({ enseignantId } = {}) {
+  const user = getUser();  
+  const idToFetch = enseignantId || user?.id || DEFAULT_ENSEIGNANT_ID;
+  const rows = await request(`/api/planning/enseignant/${idToFetch}`, { auth: true });
   return Array.isArray(rows) ? rows.map(mapPlanningRow) : [];
 }
-
 export async function getEtudiantCours({ cohorteId = DEFAULT_COHORTE_ID } = {}) {
-  const rows = await apiFetch(`/api/planning/cohorte/${cohorteId}`);
+  const rows = await request(`/api/planning/cohorte/${cohorteId}`, { auth: true });
   return Array.isArray(rows) ? rows.map(mapPlanningRow) : [];
 }
 
@@ -196,101 +215,135 @@ export async function getSeanceDetailsForEtudiant(id, { cohorteId = DEFAULT_COHO
 }
 
 export async function getDemandes() {
-  const rows = await apiFetch("/api/reservations");
-  return Array.isArray(rows) ? rows.map(mapReservationRow) : [];
+  const rows = await request("/api/reservations/front", { auth: true })
+        .catch(() => request("/api/reservations", { auth: true })); // Sécurité si la route front n'existe pas
+  return Array.isArray(rows) ? rows.map(mapReservationFrontRow) : [];
 }
 
 export async function createDemande(demande) {
+  const {
+    type, date, debut, fin, cohorte_id, salle_id, enseignant_id,
+    demande_type, motif, seance_id, source_reservation_id,
+  } = demande;
+
+  let duree_souhaitee = null;
+  if (debut && fin) {
+    const [dh, dm] = debut.split(":").map(Number);
+    const [fh, fm] = fin.split(":").map(Number);
+    duree_souhaitee = fh * 60 + fm - (dh * 60 + dm);
+  }
+
+  const payload = {
+    type_demande: demande_type === "DEPLACEMENT" ? "MODIFICATION" : "AJOUT",
+    seance_id: seance_id || null,
+    source_reservation_id: source_reservation_id || null,
+    salle_id: salle_id || null,
+    date_souhaitee: date || null,
+    heure_debut_souhaitee: debut || null,
+    duree_souhaitee: duree_souhaitee || null,
+    type_seance_souhaitee: type || null,
+    cohorte_id: cohorte_id || null,
+    enseignant_id: enseignant_id || getUser()?.id || null,
+    motif: motif || null,
+  };
+
   return request("/api/reservations", {
     method: "POST",
-    data: demande,
+    data: payload,
     auth: true,
   });
 }
 
-export async function getNotifications({ role = "enseignant" } = {}) {
-  const demandes = await getDemandes();
-  return demandes.slice(0, 20).map((d) => ({
-    id: `notif-${role}-${d.id}`,
-    status: d.statut === "EN ATTENTE" ? "important" : "lu",
-    titre: role === "etudiant" ? "Mise a jour planning" : "Mise a jour reservation",
-    message: `${d.type} - ${d.cohorte} - Salle ${d.salle} (${d.statut})`,
-    date: d.date,
-    iconType: d.statut === "REFUSÉE" ? "warning" : "info",
-  }));
+export async function getNotifications({ role } = {}) {
+  const user = getUser();
+  const effectiveRole = role || user?.role || "enseignant";
+
+  try {
+    const rows = await request(`/api/notifications?role=${encodeURIComponent(effectiveRole)}`, { auth: true });
+    if (!Array.isArray(rows)) return [];
+
+    return rows.map((n) => ({
+      id: String(n.id),
+      status: n.status || "nouveau",
+      titre: n.titre || "Notification",
+      message: n.message || "",
+      date: n.date || "",
+      iconType: n.iconType || "info",
+      role: n.role || effectiveRole,
+    }));
+  } catch {
+    const demandes = await getDemandes().catch(() => []);
+    return demandes.slice(0, 20).map((d) => ({
+      id: `notif-${effectiveRole}-${d.id}`,
+      status: d.statut === "EN ATTENTE" ? "important" : "lu",
+      titre: effectiveRole === "etudiant" ? "Mise a jour planning" : "Mise a jour reservation",
+      message: `${d.type} - ${d.cohorte} - Salle ${d.salle} (${d.statut})`,
+      date: d.date,
+      iconType: d.statut === "REFUSÉE" ? "warning" : "info",
+      role: effectiveRole,
+    }));
+  }
 }
 
 export async function getCohortes() {
-  const rows = await apiFetch("/api/cohortes");
+  const rows = await request("/api/cohortes", { auth: true });
   return Array.isArray(rows) ? rows : [];
 }
 
 export async function getSalles() {
-  try {
-    const rows = await apiFetch("/api/salles");
-    if (Array.isArray(rows) && rows.some((s) => s.code)) {
-      return rows.map((s) => ({ id: s.id, code: s.code || `Salle ${s.id}` }));
-    }
-  } catch {
-  }
+  const rows = await request("/api/salles", { auth: true });
+  if (!Array.isArray(rows)) return [];
 
-  const reservations = await apiFetch("/api/reservations");
-  if (!Array.isArray(reservations)) return [];
+  return rows.map((s) => ({
+    id: s.id,
+    code: s.code || `Salle ${s.id}`,
+    capacite: Number(s.capacite ?? 0),
+    type: String(s.type || "").toUpperCase(),
+    accessibilitePMR: Number(s.accessibilitePMR ?? 0),
+    isActive: Number(s.isActive ?? 0),
+  }));
+}
 
-  const dedup = new Map();
-  reservations.forEach((r) => {
-    if (r.salle_id && !dedup.has(r.salle_id)) {
-      dedup.set(r.salle_id, {
-        id: r.salle_id,
-        code: r.salle_code || `Salle ${r.salle_id}`,
-      });
-    }
+export async function createSalle(payload) {
+  return request("/api/salles", {
+    method: "POST",
+    data: payload,
+    auth: true,
   });
+}
 
-  return Array.from(dedup.values());
+export async function updateSalle(id, payload) {
+  return request(`/api/salles/${id}`, {
+    method: "PUT",
+    data: payload,
+    auth: true,
+  });
+}
+
+export async function deleteSalle(id) {
+  return request(`/api/salles/${id}`, {
+    method: "DELETE",
+    auth: true,
+  });
 }
 
 export async function getReservations() {
-  const rows = await apiFetch("/api/reservations");
+  const rows = await request("/api/reservations", { auth: true });
   return Array.isArray(rows) ? rows : [];
 }
 
 export async function getSeances() {
-  const rows = await apiFetch("/api/seances");
+  const rows = await request("/api/seances", { auth: true });
   if (!Array.isArray(rows)) return [];
   return rows.map(mapSeanceRow);
 }
 
 export async function getConflits() {
-  const rows = await apiFetch("/api/conflits");
+  const rows = await request("/api/conflits", { auth: true });
   return Array.isArray(rows) ? rows : [];
 }
 
 export async function getUsers() {
-  try {
-    const rows = await request("/api/users", { auth: true });
-    if (Array.isArray(rows)) return rows;
-  } catch {
-  }
-
-  const [etudiants, enseignants] = await Promise.all([
-    apiFetch("/api/etudiants").catch(() => []),
-    apiFetch("/api/enseignants").catch(() => []),
-  ]);
-
-  const eRows = Array.isArray(etudiants)
-    ? etudiants.map((u) => ({ ...u, role: u.role || "etudiant" }))
-    : [];
-  const ensRows = Array.isArray(enseignants)
-    ? enseignants.map((u) => ({ ...u, role: u.role || "enseignant" }))
-    : [];
-
-  const merged = [...eRows, ...ensRows];
-  const dedup = new Map();
-  merged.forEach((u) => {
-    const key = String(u.id);
-    if (!dedup.has(key)) dedup.set(key, u);
-  });
-
-  return Array.from(dedup.values());
+  const rows = await request("/api/users", { auth: true });
+  return Array.isArray(rows) ? rows : [];
 }

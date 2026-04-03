@@ -54,18 +54,37 @@ L’application permet de centraliser les informations liées aux cours, aux sal
 ```bash
 miage-planning-app/
 │
-├── client/ 
-│   ├── pages/
-│   │   ├── Login
-│   │   ├── Dashboard
-│   │   ├── EmploiDuTemps
-│   │   ├── Salles
-│   │   ├── Conflits
-│   │   ├── Filtres
-│   │   ├── Utilisateurs
-│   │   └── Reservation
+├── client/
+│   ├── public/
+│   ├── src/
+│   │   ├── admin/
+│   │   │   ├── hooks/
+│   │   │   ├── layout/
+│   │   │   ├── pages/
+│   │   │   ├── services/
+│   │   │   └── styles/
+│   │   │
+│   │   ├── enseignant/
+│   │   │   ├── hooks/
+│   │   │   └── pages/
+│   │   │
+│   │   ├── etudiant/
+│   │   │   ├── hooks/
+│   │   │   └── pages/
+│   │   │
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── data/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── styles/
+│   │   ├── assets/
+│   │   ├── App.jsx
+│   │   └── index.js
+│   │
+│   └── package.json
 │
-├── server/ 
+├── server/
 │   ├── controllers/
 │   ├── db/
 │   ├── middleware/
@@ -73,7 +92,6 @@ miage-planning-app/
 │   ├── routes/
 │
 ├── docs/
-│
 ├── README.md
 ├── journal.txt
 ├── Rapport Projet S6.md
@@ -85,17 +103,22 @@ miage-planning-app/
 ## 🎨 Répartition Frontend
 
 ### 👩‍💻 Belkacemi CIRINE
+- Réalisation de la maquette / conception visuelle de l’interface
 - Login  
-- Dashboard  
-- Emploi du Temps  
-- Gestion des Salles  
-- Gestion des Conflits  
+- Home  
+- Navbar  
+- Navigation/affichage du planning  
+- Interface enseignant  
+- Interface étudiant
 
 ### 👩‍💻 Lina EL HATHOUT
-- Filtres  
-- Gestion des Utilisateurs  
-- Réservation  
-
+- Mise en place de la structure frontend
+- Développement de l’interface administrateur :
+- Dashboard administrateur
+- Gestion des réservations
+- Gestion des utilisateurs
+- Gestion des salles
+- Gestion des conflits
 
 
 ## 🔧 Backend & Logique
@@ -130,12 +153,14 @@ miage-planning-app/
 git clone https://github.com/Edris-Y/miage-planning-app
 cd miage-planning-app
 
-cd backend
+# Backend
+cd server
 npm install
 node db/initDb.js
 npm run dev
 
-cd ../frontend
+# Frontend
+cd ../client
 npm install
 npm start
 ```

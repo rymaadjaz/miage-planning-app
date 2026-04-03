@@ -2,32 +2,73 @@ const { dbAll, dbGet, dbRun } = require("../db/dbAsync");
 
 exports.findAll = () =>
   dbAll(`
-    SELECT e.*, s.code AS salle_code
+    SELECT
+      e.id,
+      e.nom,
+      e.salle_id,
+      s.code AS salle_code
     FROM Equipement e
-    JOIN Salle s ON e.salle_id = s.id
+    LEFT JOIN Salle s ON e.salle_id = s.id
     ORDER BY e.nom ASC
   `);
 
 exports.findById = (id) =>
-  dbGet(`SELECT * FROM Equipement WHERE id = ?`, [id]);
+  dbGet(
+    `
+    SELECT
+      e.id,
+      e.nom,
+      e.salle_id,
+      s.code AS salle_code
+    FROM Equipement e
+    LEFT JOIN Salle s ON e.salle_id = s.id
+    WHERE e.id = ?
+    `,
+    [id]
+  );
 
-exports.findBySalle = (salleId) =>
-  dbAll(`SELECT * FROM Equipement WHERE salle_id = ? ORDER BY nom ASC`, [salleId]);
+exports.findBySalleId = (salleId) =>
+  dbAll(
+    `
+    SELECT
+      e.id,
+      e.nom,
+      e.salle_id,
+      s.code AS salle_code
+    FROM Equipement e
+    LEFT JOIN Salle s ON e.salle_id = s.id
+    WHERE e.salle_id = ?
+    ORDER BY e.nom ASC
+    `,
+    [salleId]
+  );
 
 exports.create = ({ nom, salle_id }) =>
   dbRun(
-    `INSERT INTO Equipement (nom, salle_id)
-     VALUES (?, ?)`,
+    `
+    INSERT INTO Equipement (nom, salle_id)
+    VALUES (?, ?)
+    `,
     [nom, salle_id]
   );
 
-exports.update = (id, data) =>
+exports.update = (id, { nom, salle_id }) =>
   dbRun(
-    `UPDATE Equipement
-     SET nom = ?, salle_id = ?
-     WHERE id = ?`,
-    [data.nom, data.salle_id, id]
+    `
+    UPDATE Equipement
+    SET
+      nom = ?,
+      salle_id = ?
+    WHERE id = ?
+    `,
+    [nom, salle_id, id]
   );
 
 exports.remove = (id) =>
-  dbRun(`DELETE FROM Equipement WHERE id = ?`, [id]);
+  dbRun(
+    `
+    DELETE FROM Equipement
+    WHERE id = ?
+    `,
+    [id]
+  );

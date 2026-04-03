@@ -1,0 +1,390 @@
+.admin-salles-page {
+  --admin-salles-bg: #f4f6fa;
+  --admin-salles-panel: #ffffff;
+  --admin-salles-border: #dbe3ed;
+  --admin-salles-border-soft: #edf1f6;
+  --admin-salles-text: #172235;
+  --admin-salles-muted: #64748b;
+  --admin-salles-muted-strong: #7184a0;
+  --admin-salles-primary: #2354b8;
+  --admin-salles-primary-dark: #1b4291;
+  min-height: 100%;
+  padding: 12px 16px 22px;
+  background: var(--admin-salles-bg);
+  color: var(--admin-salles-text);
+}
+
+.admin-salles-page * {
+  box-sizing: border-box;
+}
+
+.admin-salles-shell {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.admin-salles-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 2px 2px 16px;
+}
+
+.admin-salles-heading {
+  min-width: 0;
+}
+.admin-salles-status-badge--inactive {
+  background: #edf3fb;
+  color: #516b8f;
+}
+.admin-salles-title {
+  margin: 0 0 8px;
+  font-size: 1.18rem;
+  line-height: 1.15;
+  font-weight: 700;
+  color: var(--admin-salles-text);
+}
+
+.admin-salles-description {
+  margin: 0;
+  max-width: 520px;
+  color: var(--admin-salles-muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.admin-salles-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.admin-salles-search {
+  position: relative;
+  width: 300px;
+}
+
+.admin-salles-search svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.admin-salles-search input {
+  width: 100%;
+  height: 40px;
+  padding: 0 14px 0 38px;
+  border: 1px solid var(--admin-salles-border);
+  border-radius: 12px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.85rem;
+  outline: none;
+  box-shadow: 0 3px 10px rgba(148, 163, 184, 0.06);
+}
+
+.admin-salles-search input:focus,
+.admin-salles-filter select:focus {
+  border-color: #c7d2fe;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
+}
+
+.admin-salles-add-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 12px;
+  background: var(--admin-salles-primary);
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(35, 84, 184, 0.18);
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-salles-add-button:hover {
+  transform: translateY(-1px);
+  background: var(--admin-salles-primary-dark);
+}
+
+.admin-salles-panel {
+  border: 1px solid var(--admin-salles-border);
+  border-radius: 18px;
+  background: var(--admin-salles-panel);
+  box-shadow: 0 8px 18px rgba(148, 163, 184, 0.07);
+  overflow: hidden;
+}
+
+.admin-salles-panel-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--admin-salles-border-soft);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.72) 0%, #ffffff 100%);
+}
+
+.admin-salles-panel-heading {
+  min-width: 0;
+}
+
+.admin-salles-panel-title {
+  margin: 0 0 4px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--admin-salles-text);
+}
+
+.admin-salles-panel-text {
+  margin: 0;
+  color: var(--admin-salles-muted);
+  font-size: 0.82rem;
+}
+
+.admin-salles-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.admin-salles-filter span {
+  color: #7b91b2;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.admin-salles-filter select {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--admin-salles-border);
+  border-radius: 10px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.admin-salles-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-salles-table {
+  width: 100%;
+  min-width: 840px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-salles-table th,
+.admin-salles-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--admin-salles-border-soft);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.admin-salles-table th {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--admin-salles-muted-strong);
+  letter-spacing: 0.02em;
+  background: #ffffff;
+  white-space: nowrap;
+}
+
+.admin-salles-table td {
+  font-size: 0.82rem;
+  color: #1f2937;
+}
+
+.admin-salles-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-salles-table tbody tr:hover {
+  background: #fcfdff;
+}
+
+.admin-salles-room-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-salles-room-title {
+  font-weight: 700;
+  color: var(--admin-salles-text);
+}
+
+.admin-salles-type-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 0 10px;
+  border: 1px solid #d5dde8;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-salles-capacity {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.admin-salles-capacity svg {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.admin-salles-equipment-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-salles-equipment-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.admin-salles-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-salles-status-badge--available {
+  background: #e9f9f2;
+  color: #0f9f6e;
+}
+
+.admin-salles-status-badge--maintenance {
+  background: #fff3df;
+  color: #d97706;
+}
+
+.admin-salles-status-badge--occupied {
+  background: #edf3fb;
+  color: #516b8f;
+}
+
+.admin-salles-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-salles-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid #dbe3ed;
+  background: #ffffff;
+  color: #516b8f;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease,
+    color 0.15s ease;
+}
+
+.admin-salles-action:hover {
+  transform: translateY(-1px);
+}
+
+.admin-salles-action--edit:hover {
+  border-color: #bfd0ec;
+  background: #f8fbff;
+  color: #35517c;
+}
+
+.admin-salles-action--delete {
+  color: #dc4c4c;
+}
+
+.admin-salles-action--delete:hover {
+  border-color: #ffd6d6;
+  background: #fff5f5;
+}
+
+.admin-salles-empty {
+  padding: 28px 18px;
+  text-align: center;
+  color: var(--admin-salles-muted);
+  font-size: 0.88rem;
+}
+
+@media (max-width: 1080px) {
+  .admin-salles-header,
+  .admin-salles-panel-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-salles-toolbar {
+    justify-content: stretch;
+  }
+
+  .admin-salles-search {
+    width: 100%;
+  }
+
+  .admin-salles-add-button {
+    width: 100%;
+  }
+
+  .admin-salles-filter {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 820px) {
+  .admin-salles-page {
+    padding: 12px;
+  }
+
+  .admin-salles-table th,
+  .admin-salles-table td {
+    padding: 13px 14px;
+  }
+}

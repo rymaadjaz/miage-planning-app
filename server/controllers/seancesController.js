@@ -1,21 +1,57 @@
 const ApiError = require("../utils/ApiError");
 const seanceModel = require("../models/seance.model");
 const cohorteModel = require("../models/cohorte.model");
-const historiqueService = require("../services/historique.service");
+const { dbGet } = require("../db/dbAsync");
 
-exports.getAll = async (req, res) => {
+const TYPES_VALIDES = ["CM", "TD", "TP", "EXAMEN", "EVENEMENT", "REUNION"];
+const STATUTS_VALIDES = ["PLANIFIE", "VALIDE", "ANNULE"];
+
+function normalizeType(type) {
+  return String(type || "").trim().toUpperCase();
+}
+
+function normalizeStatut(statut) {
+  return String(statut || "").trim().toUpperCase();
+}
+
+async function utilisateurExiste(id) {
+  return dbGet(
+    `
+    SELECT id
+    FROM Utilisateur
+    WHERE id = ?
+    `,
+    [id]
+  );
+}
+
+async function matiereExiste(id) {
+  return dbGet(
+    `
+    SELECT id
+    FROM Matiere
+    WHERE id = ?
+    `,
+    [id]
+  );
+}
+
+exports.getAll = async (_req, res) => {
   const rows = await seanceModel.findAll();
   res.json(rows);
 };
 
 exports.getById = async (req, res) => {
   const id = Number(req.params.id);
+
   if (!Number.isInteger(id)) {
     throw new ApiError(400, "Id séance invalide");
   }
 
   const row = await seanceModel.findById(id);
-  if (!row) throw new ApiError(404, "Séance introuvable");
+  if (!row) {
+    throw new ApiError(404, "Séance introuvable");
+  }
 
   res.json(row);
 };
@@ -27,164 +63,155 @@ exports.create = async (req, res) => {
     duree,
     typeSeance,
     statut = "PLANIFIE",
+    description = null,
     matiere_id = null,
-    cohorte_id,
-    enseignant_id,
+    cohorte_id = null,
+    enseignant_id = null,
   } = req.body;
 
-  const dureeNum = Number(duree);
-  const cohorteIdNum = Number(cohorte_id);
-  const enseignantIdNum = Number(enseignant_id);
-  const matiereIdNum =
-    matiere_id !== null && matiere_id !== undefined ? Number(matiere_id) : null;
-
-  const typesValid = ["CM", "TD", "TP", "EXAMEN", "EVENEMENT", "REUNION"];
-  const statutsValid = ["PLANIFIE", "VALIDE", "ANNULE"];
-
-  if (
-    !dateSeance ||
-    !heureDebut ||
-    !Number.isInteger(dureeNum) ||
-    dureeNum <= 0 ||
-    !Number.isInteger(cohorteIdNum) ||
-    !Number.isInteger(enseignantIdNum)
-  ) {
-    throw new ApiError(400, "Champs invalides");
+  if (!dateSeance || !heureDebut || !duree || !typeSeance) {
+    throw new ApiError(400, "Champs requis manquants");
   }
 
-  if (matiereIdNum !== null && !Number.isInteger(matiereIdNum)) {
-    throw new ApiError(400, "matiere_id invalide");
-  }
+  const finalType = normalizeType(typeSeance);
+  const finalStatut = normalizeStatut(statut);
 
-  if (!typesValid.includes(typeSeance)) {
+  if (!TYPES_VALIDES.includes(finalType)) {
     throw new ApiError(400, "Type de séance invalide");
   }
 
-  if (!statutsValid.includes(statut)) {
+  if (!STATUTS_VALIDES.includes(finalStatut)) {
     throw new ApiError(400, "Statut de séance invalide");
   }
 
-  const cohorte = await cohorteModel.findById(cohorteIdNum);
-  if (!cohorte) throw new ApiError(404, "Cohorte introuvable");
+  if (cohorte_id) {
+    const cohorte = await cohorteModel.findById(Number(cohorte_id));
+    if (!cohorte) {
+      throw new ApiError(404, "Cohorte introuvable");
+    }
+  }
 
-  const r = await seanceModel.create({
+  if (enseignant_id) {
+    const enseignant = await utilisateurExiste(Number(enseignant_id));
+    if (!enseignant) {
+      throw new ApiError(404, "Enseignant introuvable");
+    }
+  }
+
+  if (matiere_id) {
+    const matiere = await matiereExiste(Number(matiere_id));
+    if (!matiere) {
+      throw new ApiError(404, "Matière introuvable");
+    }
+  }
+
+  const result = await seanceModel.create({
     dateSeance,
     heureDebut,
-    duree: dureeNum,
-    typeSeance,
-    statut,
-    matiere_id: matiereIdNum,
-    cohorte_id: cohorteIdNum,
-    enseignant_id: enseignantIdNum,
+    duree: Number(duree),
+    typeSeance: finalType,
+    statut: finalStatut,
+    description,
+    matiere_id: matiere_id ? Number(matiere_id) : null,
+    cohorte_id: cohorte_id ? Number(cohorte_id) : null,
+    enseignant_id: enseignant_id ? Number(enseignant_id) : null,
   });
 
-  await historiqueService.logAction({
-    auteur_id: req.user?.id ?? null,
-    entite: "Seance",
-    entite_id: r.lastID,
-    action: "CREATE",
-    detail: `Création de la séance ${typeSeance} le ${dateSeance} à ${heureDebut}`,
-  });
+  const created = await seanceModel.findById(result.lastID);
 
   res.status(201).json({
     message: "Séance créée avec succès",
-    id: r.lastID,
+    seance: created,
   });
 };
 
 exports.update = async (req, res) => {
   const id = Number(req.params.id);
+
   if (!Number.isInteger(id)) {
     throw new ApiError(400, "Id séance invalide");
   }
 
   const existing = await seanceModel.findById(id);
-  if (!existing) throw new ApiError(404, "Séance introuvable");
-
-  const typesValid = ["CM", "TD", "TP", "EXAMEN", "EVENEMENT", "REUNION"];
-  const statutsValid = ["PLANIFIE", "VALIDE", "ANNULE"];
-
-  const matiereIdNum =
-    req.body.matiere_id !== undefined && req.body.matiere_id !== null
-      ? Number(req.body.matiere_id)
-      : existing.matiere_id;
-
-  const data = {
-    dateSeance: req.body.dateSeance ?? existing.dateSeance,
-    heureDebut: req.body.heureDebut ?? existing.heureDebut,
-    duree:
-      req.body.duree !== undefined ? Number(req.body.duree) : existing.duree,
-    typeSeance: req.body.typeSeance ?? existing.typeSeance,
-    statut: req.body.statut ?? existing.statut,
-    matiere_id: matiereIdNum,
-    cohorte_id:
-      req.body.cohorte_id !== undefined
-        ? Number(req.body.cohorte_id)
-        : existing.cohorte_id,
-    enseignant_id:
-      req.body.enseignant_id !== undefined
-        ? Number(req.body.enseignant_id)
-        : existing.enseignant_id,
-  };
-
-  if (!Number.isInteger(data.duree) || data.duree <= 0) {
-    throw new ApiError(400, "Durée invalide");
+  if (!existing) {
+    throw new ApiError(404, "Séance introuvable");
   }
 
-  if (data.matiere_id !== null && !Number.isInteger(data.matiere_id)) {
-    throw new ApiError(400, "matiere_id invalide");
-  }
+  const finalDateSeance = req.body.dateSeance ?? existing.dateSeance;
+  const finalHeureDebut = req.body.heureDebut ?? existing.heureDebut;
+  const finalDuree = req.body.duree ?? existing.duree;
+  const finalType = req.body.typeSeance ? normalizeType(req.body.typeSeance) : existing.typeSeance;
+  const finalStatut = req.body.statut ? normalizeStatut(req.body.statut) : existing.statut;
+  const finalDescription = req.body.description ?? existing.description;
+  const finalMatiereId = req.body.matiere_id ?? existing.matiere_id;
+  const finalCohorteId = req.body.cohorte_id ?? existing.cohorte_id;
+  const finalEnseignantId = req.body.enseignant_id ?? existing.enseignant_id;
 
-  if (!Number.isInteger(data.cohorte_id)) {
-    throw new ApiError(400, "cohorte_id invalide");
-  }
-
-  if (!Number.isInteger(data.enseignant_id)) {
-    throw new ApiError(400, "enseignant_id invalide");
-  }
-
-  if (!typesValid.includes(data.typeSeance)) {
+  if (!TYPES_VALIDES.includes(finalType)) {
     throw new ApiError(400, "Type de séance invalide");
   }
 
-  if (!statutsValid.includes(data.statut)) {
+  if (!STATUTS_VALIDES.includes(finalStatut)) {
     throw new ApiError(400, "Statut de séance invalide");
   }
 
-  const cohorte = await cohorteModel.findById(data.cohorte_id);
-  if (!cohorte) throw new ApiError(404, "Cohorte introuvable");
+  if (finalCohorteId) {
+    const cohorte = await cohorteModel.findById(Number(finalCohorteId));
+    if (!cohorte) {
+      throw new ApiError(404, "Cohorte introuvable");
+    }
+  }
 
-  await seanceModel.update(id, data);
+  if (finalEnseignantId) {
+    const enseignant = await utilisateurExiste(Number(finalEnseignantId));
+    if (!enseignant) {
+      throw new ApiError(404, "Enseignant introuvable");
+    }
+  }
 
-  await historiqueService.logAction({
-    auteur_id: req.user?.id ?? null,
-    entite: "Seance",
-    entite_id: id,
-    action: "UPDATE",
-    detail: `Mise à jour de la séance ${id}`,
+  if (finalMatiereId) {
+    const matiere = await matiereExiste(Number(finalMatiereId));
+    if (!matiere) {
+      throw new ApiError(404, "Matière introuvable");
+    }
+  }
+
+  await seanceModel.update(id, {
+    dateSeance: finalDateSeance,
+    heureDebut: finalHeureDebut,
+    duree: Number(finalDuree),
+    typeSeance: finalType,
+    statut: finalStatut,
+    description: finalDescription,
+    matiere_id: finalMatiereId ? Number(finalMatiereId) : null,
+    cohorte_id: finalCohorteId ? Number(finalCohorteId) : null,
+    enseignant_id: finalEnseignantId ? Number(finalEnseignantId) : null,
   });
 
-  res.json({ message: "Séance mise à jour" });
+  const updated = await seanceModel.findById(id);
+
+  res.json({
+    message: "Séance mise à jour",
+    seance: updated,
+  });
 };
 
 exports.remove = async (req, res) => {
   const id = Number(req.params.id);
+
   if (!Number.isInteger(id)) {
     throw new ApiError(400, "Id séance invalide");
   }
 
   const existing = await seanceModel.findById(id);
-  if (!existing) throw new ApiError(404, "Séance introuvable");
+  if (!existing) {
+    throw new ApiError(404, "Séance introuvable");
+  }
 
-  await seanceModel.cancel(id);
+  await seanceModel.remove(id);
 
-  await historiqueService.logAction({
-    auteur_id: req.user?.id ?? null,
-    entite: "Seance",
-    entite_id: id,
-    action: "CANCEL",
-    detail: `Annulation de la séance ${id}`,
+  res.json({
+    message: "Séance supprimée",
+    id,
   });
-
-  res.json({ message: "Séance annulée" });
 };

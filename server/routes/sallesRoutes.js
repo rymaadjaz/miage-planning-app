@@ -2,22 +2,44 @@ const express = require("express");
 const router = express.Router();
 
 const asyncHandler = require("../middleware/asyncHandler");
-const validate = require("../middleware/validationMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
+const sallesController = require("../controllers/sallesController");
 
-const controller = require("../controllers/seancesController");
+const { authorizeRoles } = authMiddleware;
 
-router.get("/", asyncHandler(controller.getAll));
-router.get("/:id", asyncHandler(controller.getById));
+router.get(
+  "/",
+  authMiddleware,
+  authorizeRoles("enseignant", "administratif"),
+  asyncHandler(sallesController.getAll)
+);
+
+router.get(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("enseignant", "administratif"),
+  asyncHandler(sallesController.getById)
+);
 
 router.post(
   "/",
   authMiddleware,
-  validate(["dateSeance", "heureDebut", "duree", "typeSeance", "cohorte_id", "enseignant_id"]),
-  asyncHandler(controller.create)
+  authorizeRoles("administratif"),
+  asyncHandler(sallesController.create)
 );
 
-router.put("/:id", authMiddleware, asyncHandler(controller.update));
-router.delete("/:id", authMiddleware, asyncHandler(controller.remove));
+router.put(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(sallesController.update)
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(sallesController.remove)
+);
 
 module.exports = router;

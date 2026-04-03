@@ -2,22 +2,44 @@ const express = require("express");
 const router = express.Router();
 
 const asyncHandler = require("../middleware/asyncHandler");
-const validate = require("../middleware/validationMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
+const conflitsController = require("../controllers/conflitsController");
 
-const controller = require("../controllers/conflitsController");
+const { authorizeRoles } = authMiddleware;
 
-router.get("/", asyncHandler(controller.getAll));
-router.get("/open", asyncHandler(controller.getOpen));
-router.get("/:id", asyncHandler(controller.getById));
-
-router.post(
+router.get(
   "/",
   authMiddleware,
-  validate(["type", "description"]),
-  asyncHandler(controller.create)
+  authorizeRoles("administratif"),
+  asyncHandler(conflitsController.getAll)
 );
 
-router.patch("/:id/resolve", authMiddleware, asyncHandler(controller.resolve));
+router.get(
+  "/unresolved",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(conflitsController.getUnresolved)
+);
+
+router.get(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(conflitsController.getById)
+);
+
+router.patch(
+  "/:id/resolve",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(conflitsController.resolve)
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(conflitsController.remove)
+);
 
 module.exports = router;

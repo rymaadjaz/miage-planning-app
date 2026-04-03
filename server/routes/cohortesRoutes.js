@@ -2,22 +2,44 @@ const express = require("express");
 const router = express.Router();
 
 const asyncHandler = require("../middleware/asyncHandler");
-const validate = require("../middleware/validationMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
+const cohortesController = require("../controllers/cohortesController");
 
-const controller = require("../controllers/cohortesController");
+const { authorizeRoles } = authMiddleware;
 
-router.get("/", asyncHandler(controller.getAll));
-router.get("/:id", asyncHandler(controller.getById));
+router.get(
+  "/",
+  authMiddleware,
+  authorizeRoles("enseignant", "administratif"),
+  asyncHandler(cohortesController.getAll)
+);
+
+router.get(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("enseignant", "administratif"),
+  asyncHandler(cohortesController.getById)
+);
 
 router.post(
   "/",
   authMiddleware,
-  validate(["nom", "effectif"]),
-  asyncHandler(controller.create)
+  authorizeRoles("administratif"),
+  asyncHandler(cohortesController.create)
 );
 
-router.put("/:id", authMiddleware, asyncHandler(controller.update));
-router.delete("/:id", authMiddleware, asyncHandler(controller.remove));
+router.put(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(cohortesController.update)
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("administratif"),
+  asyncHandler(cohortesController.remove)
+);
 
 module.exports = router;
