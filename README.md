@@ -1,6 +1,6 @@
-# 📊 Projet Universitaire MIAGE 2026
+# Projet Universitaire MIAGE 2026
 
-## 📖 Description
+## Description
 
 Ce projet consiste à concevoir et développer une application web dédiée à la **gestion et planification des emplois du temps universitaires**.
 
@@ -10,21 +10,21 @@ L’application permet de centraliser les informations liées aux cours, aux sal
 - **Multiplicité des acteurs** : étudiants, enseignants et administratifs  
 - **Gestion des conflits** : éviter les chevauchements de ressources  
 
-👉 **Objectif** : proposer un système **automatisé, clair et efficace**.
+ **Objectif** : proposer un système **automatisé, clair et efficace**.
 
 ---
 
-## 🎯 Objectifs
+##  Objectifs
 
-- 📅 **Planifier** les emplois du temps universitaires  
-- 🔍 **Détecter** automatiquement les conflits  
-- 🏫 **Gérer** les salles et ressources  
-- 👨‍🏫 **Faciliter** la coordination entre acteurs  
-- 📊 **Offrir** des outils de visualisation  
+- **Planifier** les emplois du temps universitaires  
+- **Détecter** automatiquement les conflits  
+- **Gérer** les salles et ressources  
+- **Faciliter** la coordination entre acteurs  
+- **Offrir** des outils de visualisation  
 
 ---
 
-## ⚙️ Fonctionnalités principales
+##  Fonctionnalités principales
 
 - **Gestion globale** : cours, examens et événements  
 - **Visualisation personnalisée** : étudiant / enseignant / groupe  
@@ -34,14 +34,14 @@ L’application permet de centraliser les informations liées aux cours, aux sal
 
 ---
 
-## 🧠 Analyse Fonctionnelle
+##  Analyse Fonctionnelle
 
 ### 👥 Acteurs
 - **Étudiant** : consultation du planning  
 - **Enseignant** : gestion des cours et disponibilités  
 - **Administratif** : gestion globale du système  
 
-### 📌 Objectifs du système
+###  Objectifs du système
 - Organisation optimisée  
 - Centralisation des données  
 - Réduction des erreurs  
@@ -49,58 +49,65 @@ L’application permet de centraliser les informations liées aux cours, aux sal
 
 ---
 
-## 🏗️ Structure du projet
+##  Structure du projet
 
 ```bash
 miage-planning-app/
 │
+├── .git/
+├── .vscode/
 ├── client/
-│   ├── public/
-│   ├── src/
-│   │   ├── admin/
-│   │   │   ├── hooks/
-│   │   │   ├── layout/
-│   │   │   ├── pages/
-│   │   │   ├── services/
-│   │   │   └── styles/
-│   │   │
-│   │   ├── enseignant/
-│   │   │   ├── hooks/
-│   │   │   └── pages/
-│   │   │
-│   │   ├── etudiant/
-│   │   │   ├── hooks/
-│   │   │   └── pages/
-│   │   │
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── data/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── styles/
-│   │   ├── assets/
-│   │   ├── App.jsx
-│   │   └── index.js
-│   │
-│   └── package.json
-│
-├── server/
-│   ├── controllers/
-│   ├── db/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
+│ ├── public/
+│ ├── scripts/
+│ └── src/
+│ ├── admin/
+│ │ ├── hooks/
+│ │ ├── layout/
+│ │ ├── pages/
+│ │ └── styles/
+│ ├── assets/
+│ ├── components/
+│ ├── context/
+│ ├── data/
+│ ├── enseignant/
+│ │ └── pages/
+│ ├── etudiant/
+│ │ └── pages/
+│ ├── pages/
+│ ├── services/
+│ ├── styles/
+│ ├── App.css
+│ ├── App.jsx
+│ ├── index.css
+│ └── index.js
 │
 ├── docs/
-├── README.md
+│
+├── server/
+│ ├── .env
+│ ├── database.db
+│ ├── node_modules/
+│ ├── package-lock.json
+│ ├── package.json
+│ ├── server.js
+│ ├── controllers/
+│ ├── db/
+│ ├── middleware/
+│ ├── models/
+│ ├── routes/
+│ ├── services/
+│ └── utils/
+│
+├── .gitignore
 ├── journal.txt
-├── Rapport Projet S6.md
-└── package.json
+├── package-lock.json
+├── Rapport Projet S6.pdf
+└── README.md
 ```
 
 ---
 
-## 🎨 Répartition Frontend
+##  Répartition Frontend
 
 ### 👩‍💻 Belkacemi CIRINE
 - Réalisation de la maquette / conception visuelle de l’interface
@@ -133,7 +140,7 @@ miage-planning-app/
 - Base de données  
 
 
-## 🧱 Architecture Technique
+##  Architecture Technique
 
 ### Stack
 - Frontend : React.js  
@@ -147,7 +154,7 @@ miage-planning-app/
 
 ---
 
-## 🚀 Installation
+##  Installation
 
 ```bash
 git clone https://github.com/Edris-Y/miage-planning-app
@@ -167,7 +174,7 @@ npm start
 
 ---
 
-## 📅 Organisation du projet
+##  Organisation du projet
 
 ### Livrables
 - Code source  
@@ -191,6 +198,6 @@ npm start
 
 
 
-## 📝 Licence
+##  Licence
 
 Projet universitaire MIAGE 2026.
