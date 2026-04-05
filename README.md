@@ -203,7 +203,7 @@ miage-planning-app/
 ## 🔧 Backend & Logique
 
 ### 👩‍💻 Adjaz RYMA
-- API REST (CRUD : Salles, Cours, Cohortes ,conflit ,matieres, notifications, disponibilite,dashboard, equipements, historiques)
+- API REST (CRUD : salles, cours, cohortes, conflits, matières, notifications, disponibilités, dashboard, équipements, historiques)
 - Gestion du planning (étudiant / enseignant / administrateur) 
 - Gestion des conflits
 - Gestion des reservations
