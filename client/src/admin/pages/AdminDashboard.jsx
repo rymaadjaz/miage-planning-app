@@ -55,12 +55,90 @@ export default function AdminDashboard() {
 
   return (
     <div className="admin-page">
+<<<<<<< HEAD
       <h2>Tableau de bord Administrateur</h2>
       
       <div className="admin-dashboard-cards">
         <div className="admin-card">
           <h3>Statistiques générales</h3>
           <p>Total Utilisateurs : <strong>{users.length}</strong></p>
+=======
+      <div className="dashboard-header">
+        <h2 className="dashboard-title">Tableau de bord</h2>
+        <div className="dashboard-actions" aria-label="Actions rapides">
+          <button
+            type="button"
+            className="dashboard-action-btn"
+            onClick={() => navigate('/admin/salles')}
+          >
+            + une salle
+          </button>
+          <button
+            type="button"
+            className="dashboard-action-btn"
+            onClick={() => navigate('/admin/reservations')}
+          >
+            + une reservation
+          </button>
+          <button
+            type="button"
+            className="dashboard-action-btn"
+            onClick={() => navigate('/admin/generation')}
+          >
+            + generer edt
+          </button>
+        </div>
+      </div>
+
+      <div className="dashboard-layout">
+        <div className="dashboard-card dashboard-card-full">
+          <h3>Aperçu général</h3>
+          
+          <div className="stats-cards-grid">
+            <div className="stat-card stat-card-teal">
+              <div className="stat-icon-container stat-icon-teal">
+                <span className="stat-icon">👥</span>
+              </div>
+              <div className="stat-content">
+                <p className="stat-number">{users.length}</p>
+                <p className="stat-label">Utilisateurs</p>
+              </div>
+            </div>
+
+            {/* Carte 2: Salles */}
+            <div className="stat-card stat-card-blue-teal">
+              <div className="stat-icon-container stat-icon-blue-teal">
+                <span className="stat-icon">🏢</span>
+              </div>
+              <div className="stat-content">
+                <p className="stat-number">{sallesCount}</p>
+                <p className="stat-label">Nb salles</p>
+              </div>
+            </div>
+
+            {/* Carte 3: Réservations en attente */}
+            <div className="stat-card stat-card-orange">
+              <div className="stat-icon-container stat-icon-orange">
+                <span className="stat-icon">⏳</span>
+              </div>
+              <div className="stat-content">
+                <p className="stat-number">5483</p>
+                <p className="stat-label">Réservations en attente</p>
+              </div>
+            </div>
+
+            {/* Carte 4: Conflits non résolus */}
+            <div className="stat-card stat-card-coral">
+              <div className="stat-icon-container stat-icon-coral">
+                <span className="stat-icon">⚠️</span>
+              </div>
+              <div className="stat-content">
+                <p className="stat-number">38</p>
+                <p className="stat-label">Conflits non résolus</p>
+              </div>
+            </div>
+          </div>
+>>>>>>> 7537213 (update dashboard)
         </div>
       </div>
 
