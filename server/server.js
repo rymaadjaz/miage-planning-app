@@ -111,37 +111,13 @@ async function startServer() {
   try {
     await checkDatabaseConnection();
 
-    const server = app.listen(port, "0.0.0.0", () => {
-      console.log(`Serveur lancé sur le port ${port}`);
+    app.listen(port, () => {
+      console.log(`Serveur lancé avec succès sur le port ${port}`);
+      console.log(`Lien direct : http://localhost:${port}`);
     });
 
-    server.on("error", (error) => {
-      console.error("Erreur serveur :", error);
-    });
-
-    const shutdown = (signal) => {
-      console.log(`\n${signal} reçu, arrêt du serveur...`);
-      server.close(() => {
-        console.log("Serveur arrêté.");
-        process.exit(0);
-      });
-    };
-
-    process.on("SIGINT", () => shutdown("SIGINT"));
-    process.on("SIGTERM", () => shutdown("SIGTERM"));
-
-    process.on("uncaughtException", (error) => {
-      console.error("Uncaught Exception :", error);
-    });
-
-    process.on("unhandledRejection", (reason) => {
-      console.error("Unhandled Rejection :", reason);
-    });
-
-    return server;
   } catch (error) {
     console.error("Impossible de démarrer le serveur :", error.message);
-    process.exit(1);
   }
 }
 
