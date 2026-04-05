@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { clearToken } from '../services/api';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { clearToken, getNotifications, getUser } from '../services/api';
 
 const navbarStyles = `
   .navbar {
@@ -150,10 +150,51 @@ const navbarStyles = `
   }
 `;
 
-export default function Navbar({ notifCount = 3, onExport, onNotifications, onProfile, onLogout }) {
+export default function Navbar({ notifCount, onExport, onNotifications, onProfile, onLogout }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [resolvedNotifCount, setResolvedNotifCount] = useState(0);
   const profileRef = useRef(null);
+
+  useEffect(() => {
+    const hasExplicitCount = typeof notifCount === 'number';
+    if (hasExplicitCount) {
+      setResolvedNotifCount(notifCount);
+      return;
+    }
+
+    const user = getUser();
+    const role = String(user?.role || '').toLowerCase();
+
+    if (role !== 'enseignant' && role !== 'etudiant') {
+      setResolvedNotifCount(0);
+      return;
+    }
+
+    let isMounted = true;
+
+    async function loadNotifCount() {
+      try {
+        const rows = await getNotifications({ role });
+        if (!isMounted) return;
+        const unreadCount = Array.isArray(rows)
+          ? rows.filter((n) => n.status !== 'lu').length
+          : 0;
+        setResolvedNotifCount(unreadCount);
+      } catch {
+        if (isMounted) {
+          setResolvedNotifCount(0);
+        }
+      }
+    }
+
+    loadNotifCount();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [notifCount, location.pathname]);
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -229,7 +270,7 @@ export default function Navbar({ notifCount = 3, onExport, onNotifications, onPr
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>
-            {notifCount > 0 && <span className="notif-badge">{notifCount}</span>}
+            {resolvedNotifCount > 0 && <span className="notif-badge">{resolvedNotifCount}</span>}
           </button>
           <button className="navbar-icon-btn" aria-label="Profil" onClick={() => setIsProfileOpen(v => !v)}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -5,7 +5,7 @@
 .admin-reservations-page {
   min-height: 100%;
   padding: 12px 16px 22px;
-  background: #f4f6fa;
+  background: transparent;
   color: #1e293b;
 }
 
@@ -20,10 +20,10 @@
 
 .admin-reservations-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
+  justify-content: flex-start;
   gap: 16px;
-  padding: 2px 2px 12px;
+  padding: 2px 2px 8px;
   background: transparent;
 }
 
@@ -39,15 +39,17 @@
   color: #172235;
 }
 
-.admin-reservations-tools {
+.admin-reservations-controls {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
+  justify-content: space-between;
   gap: 12px;
+  margin-bottom: 10px;
 }
 
 .admin-reservations-search {
   position: relative;
-  width: 280px;
+  width: 400px;
 }
 
 .admin-reservations-search svg {
@@ -79,6 +81,12 @@
 
 .admin-reservations-content {
   padding: 0;
+}
+
+.admin-reservations-floating-filters {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0;
 }
 
 .admin-reservations-panel {
@@ -628,15 +636,24 @@
 }
 
 @media (max-width: 1100px) {
-  .admin-reservations-header,
-  .admin-reservations-panel-top {
+  .admin-reservations-header {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .admin-reservations-tools,
+  .admin-reservations-controls,
+  .admin-reservations-floating-filters,
   .admin-reservations-filters {
     width: 100%;
+  }
+
+  .admin-reservations-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-reservations-floating-filters {
+    justify-content: flex-start;
   }
 
   .admin-reservations-search {

@@ -143,11 +143,12 @@ async function init() {
       CREATE TABLE IF NOT EXISTS Notification (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         role TEXT NOT NULL CHECK(role IN ('enseignant', 'etudiant', 'administratif')),
-        status TEXT NOT NULL DEFAULT 'nouveau' CHECK(status IN ('nouveau', 'lu', 'important')),
+        status TEXT NOT NULL DEFAULT 'nouveau' CHECK(status IN ('nouveau', 'lu')),
         titre TEXT NOT NULL,
         message TEXT NOT NULL,
         date TEXT NOT NULL,
-        iconType TEXT NOT NULL DEFAULT 'info' CHECK(iconType IN ('info', 'location', 'check', 'warning'))
+        iconType TEXT NOT NULL DEFAULT 'info' CHECK(iconType IN ('info', 'location', 'check', 'warning')),
+        cohorte_id INTEGER REFERENCES Cohorte(id) ON DELETE SET NULL
       );
     `);
 
@@ -292,7 +293,7 @@ async function init() {
         
         INSERT INTO Notification (role, status, titre, message, date, iconType) VALUES
         ('enseignant', 'nouveau', 'Demande de réservation', 'Une nouvelle réservation est en attente de traitement.', '2026-03-27 08:45', 'info'),
-        ('enseignant', 'important', 'Conflit détecté', 'Un conflit a été détecté dans votre planning.', '2026-03-27 09:10', 'warning'),
+        ('enseignant', 'nouveau', 'Conflit détecté', 'Un conflit a été détecté dans votre planning.', '2026-03-27 09:10', 'warning'),
         ('etudiant', 'nouveau', 'Changement de salle', 'Votre cours a été déplacé en A101.', '2026-03-27 09:15', 'location');
       `);
 

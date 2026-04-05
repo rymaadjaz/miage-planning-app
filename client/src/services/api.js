@@ -1,5 +1,6 @@
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000";
 const TOKEN_KEY = "authToken";
+const LEGACY_TOKEN_KEY = "token";
 const USER_KEY = "authUser";
 
 const DEFAULT_ENSEIGNANT_ID = Number(process.env.REACT_APP_ENSEIGNANT_ID || 2);
@@ -45,16 +46,45 @@ async function apiFetch(path, options = {}) {
   return request(path, options);
 }
 
+function getCookie(name) {
+  if (typeof document === "undefined") return "";
+  const cookies = `; ${document.cookie}`;
+  const parts = cookies.split(`; ${name}=`);
+  if (parts.length === 2) {
+    return decodeURIComponent(parts.pop().split(";").shift());
+  }
+  return "";
+}
+
+function clearCookie(name) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${name}=; Max-Age=0; path=/; SameSite=Lax`;
+}
+
 export function setToken(token) {
   if (token) {
     localStorage.setItem(TOKEN_KEY, token);
+    localStorage.removeItem(LEGACY_TOKEN_KEY);
+
+    if (typeof document !== "undefined") {
+      document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; SameSite=Lax`;
+    }
   } else {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(LEGACY_TOKEN_KEY);
+    clearCookie(TOKEN_KEY);
+    clearCookie(LEGACY_TOKEN_KEY);
   }
 }
 
 export function getToken() {
-  return localStorage.getItem(TOKEN_KEY) || "";
+  return (
+    localStorage.getItem(TOKEN_KEY) ||
+    localStorage.getItem(LEGACY_TOKEN_KEY) ||
+    getCookie(TOKEN_KEY) ||
+    getCookie(LEGACY_TOKEN_KEY) ||
+    ""
+  );
 }
 
 export function setUser(user) {
@@ -78,7 +108,10 @@ export function getUser() {
 
 export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(LEGACY_TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
+  clearCookie(TOKEN_KEY);
+  clearCookie(LEGACY_TOKEN_KEY);
 }
 
 export async function request(path, { method = "GET", data, headers = {}, auth = false } = {}) {
@@ -137,7 +170,7 @@ export async function login(email, password) {
 function mapPlanningRow(row) {
   const debut = row.heureDebut || row.debut || "00:00";
   const duree = Number(row.duree || 0);
-  
+
   return {
     id: String(row.id),
     matiere: row.matiere_nom || row.matiere || "Cours",
@@ -147,9 +180,12 @@ function mapPlanningRow(row) {
     debut: toHHMM(debut),
     fin: row.fin ? toHHMM(row.fin) : addMinutes(debut, duree),
     type: normalizeType(row.typeSeance || row.type),
-    enseignant: row.enseignant_nom || row.enseignant || (row.enseignant_id ? `Enseignant ${row.enseignant_id}` : ""),
+    enseignant:
+      row.enseignant_nom ||
+      row.enseignant ||
+      (row.enseignant_id ? `Enseignant ${row.enseignant_id}` : ""),
     cohorte: row.cohorte_nom || row.cohorte || "",
-    description: row.statut ? `Statut: ${row.statut}` : (row.description || ""),
+    description: row.statut ? `Statut: ${row.statut}` : row.description || "",
     statut: row.statut || "",
     duree: duree,
   };
@@ -200,11 +236,12 @@ function mapSeanceRow(row) {
 // REQUÊTES API PROTÉGÉES (Version de main avec auth: true)
 // -------------------------------------------------------------
 export async function getEnseignantCours({ enseignantId } = {}) {
-  const user = getUser();  
+  const user = getUser();
   const idToFetch = enseignantId || user?.id || DEFAULT_ENSEIGNANT_ID;
   const rows = await request(`/api/planning/enseignant/${idToFetch}`, { auth: true });
   return Array.isArray(rows) ? rows.map(mapPlanningRow) : [];
 }
+
 export async function getEtudiantCours({ cohorteId = DEFAULT_COHORTE_ID } = {}) {
   const rows = await request(`/api/planning/cohorte/${cohorteId}`, { auth: true });
   return Array.isArray(rows) ? rows.map(mapPlanningRow) : [];
@@ -221,15 +258,25 @@ export async function getSeanceDetailsForEtudiant(id, { cohorteId = DEFAULT_COHO
 }
 
 export async function getDemandes() {
-  const rows = await request("/api/reservations/front", { auth: true })
-        .catch(() => request("/api/reservations", { auth: true })); // Sécurité si la route front n'existe pas
+  const rows = await request("/api/reservations/front", { auth: true }).catch(() =>
+    request("/api/reservations", { auth: true })
+  );
   return Array.isArray(rows) ? rows.map(mapReservationFrontRow) : [];
 }
 
 export async function createDemande(demande) {
   const {
-    type, date, debut, fin, cohorte_id, salle_id, enseignant_id,
-    demande_type, motif, seance_id, source_reservation_id,
+    type,
+    date,
+    debut,
+    fin,
+    cohorte_id,
+    salle_id,
+    enseignant_id,
+    demande_type,
+    motif,
+    seance_id,
+    source_reservation_id,
   } = demande;
 
   let duree_souhaitee = null;
@@ -265,7 +312,9 @@ export async function getNotifications({ role } = {}) {
   const effectiveRole = role || user?.role || "enseignant";
 
   try {
-    const rows = await request(`/api/notifications?role=${encodeURIComponent(effectiveRole)}`, { auth: true });
+    const rows = await request(`/api/notifications?role=${encodeURIComponent(effectiveRole)}`, {
+      auth: true,
+    });
     if (!Array.isArray(rows)) return [];
 
     return rows.map((n) => ({
@@ -281,7 +330,7 @@ export async function getNotifications({ role } = {}) {
     const demandes = await getDemandes().catch(() => []);
     return demandes.slice(0, 20).map((d) => ({
       id: `notif-${effectiveRole}-${d.id}`,
-      status: d.statut === "EN ATTENTE" ? "important" : "lu",
+      status: d.statut === "EN ATTENTE" ? "nouveau" : "lu",
       titre: effectiveRole === "etudiant" ? "Mise a jour planning" : "Mise a jour reservation",
       message: `${d.type} - ${d.cohorte} - Salle ${d.salle} (${d.statut})`,
       date: d.date,
@@ -289,6 +338,19 @@ export async function getNotifications({ role } = {}) {
       role: effectiveRole,
     }));
   }
+}
+
+export async function markNotificationAsRead(notificationId) {
+  // Local fallback notifications use synthetic IDs (notif-...).
+  // Skip API call for those and let UI clear them locally.
+  if (!/^\d+$/.test(String(notificationId))) {
+    return { id: String(notificationId), message: "Notification locale marquée comme vue" };
+  }
+
+  return request(`/api/notifications/${notificationId}/read`, {
+    method: "PATCH",
+    auth: true,
+  });
 }
 
 export async function getCohortes() {
@@ -352,4 +414,18 @@ export async function getConflits() {
 export async function getUsers() {
   const rows = await request("/api/users", { auth: true });
   return Array.isArray(rows) ? rows : [];
+}
+
+export async function getDashboardStats() {
+  const stats = await request("/api/dashboard", { auth: true });
+  return stats || {
+    salles: 0,
+    utilisateurs: 0,
+    reservations: 0,
+    reservationsEnAttente: 0,
+    conflitsNonResolus: 0,
+    seances: 0,
+    cohortes: 0,
+    notificationsImportantes: 0,
+  };
 }

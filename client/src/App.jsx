@@ -29,12 +29,19 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+
+        {/* Redirection initiale vers login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
+
+        {/* Page login (IMPORTANT pour logout) */}
         <Route path="/login" element={<Login />} />
 
+        {/* Redirection admin users */}
         <Route path="/users" element={<Navigate to="/admin/utilisateurs" replace />} />
+
         <Route path="/profil" element={<Profile />} />
 
+        {/* Enseignant */}
         <Route path="/enseignant" element={<EnseignantCalendar />} />
         <Route path="/calendar" element={<Navigate to="/enseignant" replace />} />
         <Route path="/enseignant/notifications" element={<EnseignantNotifications />} />
@@ -46,10 +53,12 @@ function App() {
         <Route path="/enseignant/seance/:id" element={<Navigate to="/enseignant" replace />} />
         <Route path="/enseignant/cohortes" element={<EnseignantCohortes />} />
 
+        {/* Étudiant */}
         <Route path="/etudiant" element={<EtudiantPage />} />
         <Route path="/etudiant/notifications" element={<EtudiantNotifications />} />
         <Route path="/etudiant/seance/:id" element={<Navigate to="/etudiant" replace />} />
 
+        {/* Admin */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="generation" element={<AdminGeneration />} />
@@ -59,7 +68,9 @@ function App() {
           <Route path="utilisateurs" element={<AdminUtilisateurs />} />
         </Route>
 
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
+
       </Routes>
     </BrowserRouter>
   );

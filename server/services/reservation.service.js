@@ -1,6 +1,7 @@
 const ApiError = require("../utils/ApiError");
 const { dbGet, dbRun } = require("../db/dbAsync");
 const reservationModel = require("../models/reservation.model");
+const notificationModel = require("../models/notification.model");
 const historiqueService = require("./historique.service");
 
 const PRIORITY_MAP = {
@@ -79,6 +80,66 @@ async function findSeanceById(id) {
 
 async function findCohorteById(id) {
   return dbGet(`SELECT * FROM Cohorte WHERE id = ?`, [id]);
+}
+
+async function findCohorteNameById(id) {
+  if (!id) return "Cohorte";
+  const row = await dbGet(`SELECT nom FROM Cohorte WHERE id = ?`, [id]);
+  return row?.nom || `Cohorte ${id}`;
+}
+
+async function findSalleCodeById(id) {
+  if (!id) return "-";
+  const row = await dbGet(`SELECT code FROM Salle WHERE id = ?`, [id]);
+  return row?.code || "-";
+}
+
+async function notifyPlanningChangeOnValidation({ reservation, type, beforeSeance = null }) {
+  const cohorteNom = await findCohorteNameById(reservation.cohorte_id);
+  const salleCode = await findSalleCodeById(reservation.salle_id);
+
+  const dateTxt = reservation.date_souhaitee || "date à définir";
+  const heureTxt = reservation.heure_debut_souhaitee || "heure à définir";
+  const typeSeance = reservation.type_seance_souhaitee || "Séance";
+
+  const titre =
+    type === "AJOUT"
+      ? "Nouvelle séance validée"
+      : "Séance déplacée validée";
+
+  const enseignantMessage =
+    type === "AJOUT"
+      ? `Votre demande d'ajout a été validée : ${typeSeance} le ${dateTxt} à ${heureTxt}, salle ${salleCode}, ${cohorteNom}.`
+      : `Le déplacement de votre séance a été validé : ${typeSeance} replanifiée le ${dateTxt} à ${heureTxt}, salle ${salleCode}, ${cohorteNom}.`;
+
+  const etudiantMessage =
+    type === "AJOUT"
+      ? `Une nouvelle séance a été ajoutée pour ${cohorteNom} : ${typeSeance} le ${dateTxt} à ${heureTxt}, salle ${salleCode}.`
+      : `Votre planning a été modifié pour ${cohorteNom} : séance déplacée au ${dateTxt} à ${heureTxt}, salle ${salleCode}.`;
+
+  const detailBefore =
+    type === "MODIFICATION" && beforeSeance
+      ? ` (Ancien créneau : ${beforeSeance.dateSeance} ${beforeSeance.heureDebut})`
+      : "";
+
+  await notificationModel.create({
+    role: "enseignant",
+    status: "nouveau",
+    titre,
+    message: `${enseignantMessage}${detailBefore}`,
+    date: new Date().toISOString(),
+    iconType: type === "AJOUT" ? "check" : "location",
+  });
+
+  await notificationModel.create({
+    role: "etudiant",
+    status: "nouveau",
+    titre,
+    message: `${etudiantMessage}${detailBefore}`,
+    date: new Date().toISOString(),
+    iconType: type === "AJOUT" ? "check" : "location",
+    cohorte_id: null,
+  });
 }
 
 async function findMaintenanceOverlap(salleId, startSql, endSql) {
@@ -278,6 +339,9 @@ exports.updateReservation = async (reservationId, payload, userId = null) => {
     throw new ApiError(404, "Réservation introuvable");
   }
 
+  let notifyType = null;
+  let previousSeance = null;
+
   // 🚀 LE COUPE-FILE (Validation par l'Admin)
   if (payload.statut && !payload.date_souhaitee && !payload.salle_id) {
     
@@ -301,9 +365,11 @@ exports.updateReservation = async (reservationId, payload, userId = null) => {
       
       const generatedId = newSeance.lastID || newSeance.id;
       await dbRun("UPDATE Reservation SET seance_id = ?, statut = 'VALIDEE' WHERE id = ?", [generatedId, reservationId]);
+      notifyType = "AJOUT";
     }
     // CAS 2 : Validation d'un DÉPLACEMENT (MODIFICATION)
     else if (payload.statut === "VALIDEE" && existing.seance_id && existing.type_demande === "MODIFICATION") {
+      previousSeance = await findSeanceById(existing.seance_id);
       await dbRun(
         `UPDATE Seance 
          SET dateSeance = ?, heureDebut = ?, duree = ? 
@@ -315,6 +381,7 @@ exports.updateReservation = async (reservationId, payload, userId = null) => {
           existing.seance_id
         ]
       );
+      notifyType = "MODIFICATION";
     }
 
     // Mise à jour finale du statut de la demande
@@ -327,6 +394,18 @@ exports.updateReservation = async (reservationId, payload, userId = null) => {
       action: "UPDATE_STATUS",
       detail: `Statut passé à ${payload.statut} pour la réservation ${reservationId}`,
     });
+
+    if (payload.statut === "VALIDEE" && notifyType) {
+      try {
+        await notifyPlanningChangeOnValidation({
+          reservation: existing,
+          type: notifyType,
+          beforeSeance: previousSeance,
+        });
+      } catch (notificationError) {
+        console.error("Erreur création notifications planning :", notificationError.message);
+      }
+    }
 
     return { message: "Statut mis à jour avec succès", id: reservationId };
   }

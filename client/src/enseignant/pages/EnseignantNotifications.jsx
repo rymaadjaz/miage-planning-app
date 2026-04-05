@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar';
 import BackButton from '../../components/BackButton';
-import { getNotifications } from '../../services/api';
+import { getNotifications, markNotificationAsRead } from '../../services/api';
 import '../../styles/enseignant.css';
-
-const TABS = ['Toutes', 'Non lues', 'Importantes'];
 
 const ICON_MAP = {
   location: { icon: '📍', cls: 'location' },
@@ -14,7 +12,6 @@ const ICON_MAP = {
 };
 
 export default function EnseignantNotifications() {
-  const [activeTab, setActiveTab] = useState('Toutes');
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState('');
@@ -44,22 +41,32 @@ export default function EnseignantNotifications() {
     };
   }, []);
 
-  const unreadCount     = items.filter(n => n.status !== 'lu').length;
-  const importantCount  = items.filter(n => n.status === 'important').length;
+  const unread = items.filter((n) => n.status !== 'lu');
+  const unreadCount = unread.length;
 
-  const tabCount = { 'Toutes': items.length, 'Non lues': unreadCount, 'Importantes': importantCount };
+  async function handleMarkOneAsRead(noteId) {
+    try {
+      await markNotificationAsRead(noteId);
+      setItems((prev) => prev.filter((n) => String(n.id) !== String(noteId)));
+    } catch (error) {
+      setApiError(error.message || "Impossible de marquer la notification comme vue.");
+    }
+  }
 
-  const filtered = items.filter(n => {
-    if (activeTab === 'Non lues')   return n.status !== 'lu';
-    if (activeTab === 'Importantes') return n.status === 'important';
-    return true;
-  });
-
-  const markAllRead = () => setItems(prev => prev.map(n => ({ ...n, status: 'lu' })));
+  async function markAllRead() {
+    try {
+      await Promise.all(
+        unread.map((note) => markNotificationAsRead(note.id))
+      );
+      setItems((prev) => prev.filter((n) => n.status === 'lu'));
+    } catch (error) {
+      setApiError(error.message || "Impossible de marquer toutes les notifications comme vues.");
+    }
+  }
 
   return (
     <div className="ens-page ens-notif-page">
-      <Navbar />
+      <Navbar notifCount={unreadCount} />
 
       <div className="ens-content" style={{ maxWidth: 680 }}>
         <div className="ens-card">
@@ -74,22 +81,9 @@ export default function EnseignantNotifications() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, flexWrap: 'wrap', gap: 10 }}>
-            <div className="ens-tabs">
-              {TABS.map(tab => (
-                <button
-                  key={tab}
-                  className={activeTab === tab ? 'active' : ''}
-                  onClick={() => setActiveTab(tab)}
-                >
-                  {tab}
-                  {tabCount[tab] > 0 && (
-                    <span className="tab-count">{tabCount[tab]}</span>
-                  )}
-                </button>
-              ))}
-            </div>
+            <div className="ens-notif-state">Notifications a consulter</div>
             <button className="ens-btn-outline" style={{ fontSize: '.82rem' }} onClick={markAllRead}>
-              Marquer toutes comme lues
+              Tout valider (vu)
             </button>
           </div>
 
@@ -98,7 +92,7 @@ export default function EnseignantNotifications() {
           {loading && <div style={{ padding: '12px 0' }}>Chargement des notifications...</div>}
           {!loading && apiError && <div style={{ padding: '12px 0', color: '#b42318' }}>Erreur API: {apiError}</div>}
 
-          {filtered.length === 0 ? (
+          {unread.length === 0 ? (
             <div className="ens-empty">
               <div className="ens-empty-icon">🔔</div>
               <h3>Aucune notification</h3>
@@ -106,15 +100,13 @@ export default function EnseignantNotifications() {
             </div>
           ) : (
             <div className="notif-list">
-              {filtered.map((note, idx) => {
+              {unread.map((note, idx) => {
                 const iconMeta = ICON_MAP[note.iconType] ?? ICON_MAP.info;
-                const isUnread = note.status !== 'lu';
-                const isNew    = note.status === 'nouveau';
-                const isImp    = note.status === 'important';
+                const isNew = note.status === 'nouveau';
 
                 return (
                   <div key={note.id}>
-                    <div className={`notif-item ${isUnread ? 'unread' : ''}`}>
+                    <div className="notif-item unread">
                       <div className={`notif-icon-wrap ${iconMeta.cls}`}>
                         {iconMeta.icon}
                       </div>
@@ -122,13 +114,21 @@ export default function EnseignantNotifications() {
                         <div className="notif-top">
                           <span className="notif-title-text">{note.titre}</span>
                           {isNew && <span className="badge badge-nouveau">Nouveau</span>}
-                          {isImp && <span className="badge badge-important">Important</span>}
                         </div>
                         <p>{note.message}</p>
                         <div className="notif-time">{note.date}</div>
+                        <div className="notif-actions">
+                          <button
+                            type="button"
+                            className="notif-read-btn"
+                            onClick={() => handleMarkOneAsRead(note.id)}
+                          >
+                            J'ai vu
+                          </button>
+                        </div>
                       </div>
                     </div>
-                    {idx < filtered.length - 1 && <div className="notif-divider" />}
+                    {idx < unread.length - 1 && <div className="notif-divider" />}
                   </div>
                 );
               })}

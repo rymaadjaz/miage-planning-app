@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { request } from "../../services/api";
+import "../styles/AdminConflits.css";
 
 export default function AdminConflits() {
   const [conflits, setConflits] = useState([]);
@@ -115,19 +116,19 @@ export default function AdminConflits() {
   };
 
   return (
-    <div className="admin-page">
-      <div className="admin-header">
-        <h2>⚠️ Gestion des Conflits</h2>
-        <p>Alertes détectées sur les cohortes, salles et enseignants.</p>
+    <div className="admin-conflits-page">
+      <div className="admin-conflits-header">
+        <h2 className="admin-conflits-title">Gestion des Conflits</h2>
       </div>
 
-      <div className="admin-card">
+      <div className="admin-conflits-panel">
         {loading ? (
-          <p>Analyse des emplois du temps...</p>
+          <p className="admin-conflits-loading">Analyse des emplois du temps...</p>
         ) : conflits.length === 0 ? (
-          <div className="no-data">✅ Aucun conflit non résolu pour le moment.</div>
+          <div className="admin-conflits-empty">✅ Aucun conflit non résolu pour le moment.</div>
         ) : (
-          <table className="admin-table">
+          <div className="admin-conflits-table-wrap">
+            <table className="admin-conflits-table">
             <thead>
               <tr>
                 <th>Type</th>
@@ -141,37 +142,36 @@ export default function AdminConflits() {
                 <tr key={c.id}>
                   <td>
                     {/* On ajoute une couleur spéciale pour le type PRIORITE */}
-                    <span className={`status-badge ${
-                      c.type === 'CAPACITE' ? 'status-refusee' : 
-                      c.type === 'PRIORITE' ? 'status-en_attente' : 
-                      'status-validee'
+                    <span className={`admin-conflits-type-badge ${
+                      c.type === 'CAPACITE' ? 'admin-conflits-type-badge--capacite' : 
+                      c.type === 'PRIORITE' ? 'admin-conflits-type-badge--priorite' : 
+                      'admin-conflits-type-badge--default'
                     }`}>
                       {c.type}
                     </span>
                   </td>
                   <td>
-                    <strong>{c.description}</strong>
-                    <div className="text-muted small">
+                    <strong className="admin-conflits-description">{c.description}</strong>
+                    <div className="admin-conflits-meta">
                       {c.enseignant_nom ? `Prof: ${c.enseignant_nom}` : "Système"} 
                       {c.reservation_id ? ` | Résa ID: ${c.reservation_id}` : ""}
                     </div>
                   </td>
-                  <td>{c.created_at ? new Date(c.created_at).toLocaleString() : "Date inconnue"}</td>
+                  <td className="admin-conflits-date">{c.created_at ? new Date(c.created_at).toLocaleString() : "Date inconnue"}</td>
                  <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div className="admin-conflits-actions">
                       {c.type === 'PRIORITE' && c.reservation_id && (
                         <button 
-                          className="btn-primary" 
-                          style={{ backgroundColor: 'orange' }}
+                          className="admin-conflits-btn admin-conflits-btn--warning"
                           onClick={() => handleForceReservation(c.id, c.reservation_id, c.seance_id_1)}                        >
                           Trancher (Forcer)
                         </button>
                       )}
                       
-                      <button className="btn-primary" onClick={() => handleResolve(c.id)}>
+                      <button className="admin-conflits-btn admin-conflits-btn--primary" onClick={() => handleResolve(c.id)}>
                         Ignorer (Résolu)
                       </button>
-                      <button className="btn-secondary" onClick={() => handleDelete(c.id)}>
+                      <button className="admin-conflits-btn admin-conflits-btn--secondary" onClick={() => handleDelete(c.id)}>
                         Supprimer
                       </button>
                     </div>
@@ -179,7 +179,8 @@ export default function AdminConflits() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         )}
       </div>
     </div>

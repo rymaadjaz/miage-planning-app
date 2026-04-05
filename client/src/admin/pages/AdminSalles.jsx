@@ -354,9 +354,6 @@ export default function AdminSalles() {
         <header className="admin-salles-header">
           <div className="admin-salles-heading">
             <h1 className="admin-salles-title">Gestion des salles</h1>
-            <p className="admin-salles-description">
-              Gérez les salles, leurs capacités et les informations disponibles dans la base.
-            </p>
           </div>
 
           <div className="admin-salles-toolbar">

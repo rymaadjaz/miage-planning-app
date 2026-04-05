@@ -1,5 +1,5 @@
 .admin-salles-page {
-  --admin-salles-bg: #f4f6fa;
+  --admin-salles-bg: transparent;
   --admin-salles-panel: #ffffff;
   --admin-salles-border: #dbe3ed;
   --admin-salles-border-soft: #edf1f6;
@@ -9,7 +9,7 @@
   --admin-salles-primary: #2354b8;
   --admin-salles-primary-dark: #1b4291;
   min-height: 100%;
-  padding: 12px 16px 22px;
+  padding: 0;
   background: var(--admin-salles-bg);
   color: var(--admin-salles-text);
 }
@@ -39,20 +39,13 @@
   color: #516b8f;
 }
 .admin-salles-title {
-  margin: 0 0 8px;
+  margin: 0; 
   font-size: 1.18rem;
   line-height: 1.15;
   font-weight: 700;
-  color: var(--admin-salles-text);
+  color: #172235;
 }
 
-.admin-salles-description {
-  margin: 0;
-  max-width: 520px;
-  color: var(--admin-salles-muted);
-  font-size: 0.88rem;
-  line-height: 1.55;
-}
 
 .admin-salles-toolbar {
   display: flex;
@@ -119,6 +112,7 @@
 }
 
 .admin-salles-panel {
+  margin-top: 21px;
   border: 1px solid var(--admin-salles-border);
   border-radius: 18px;
   background: var(--admin-salles-panel);

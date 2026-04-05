@@ -27,6 +27,15 @@
 
 .admin-users-header-card {
   margin-bottom: 18px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 18px;
 }
 
 .admin-users-header-top,
@@ -40,16 +49,22 @@
 }
 
 .admin-users-title {
-  margin: 0;
-  font-size: 2rem;
+  margin: 0 0 8px;
+  font-size: 1.18rem;
+  line-height: 1.15;
   font-weight: 700;
   color: #182741;
+}
+
+.admin-users-header-top {
+  flex: 1 1 100%;
 }
 
 .admin-users-subtitle {
   margin: 0;
   color: #5f6f86;
   font-size: 1rem;
+  display: none;
 }
 
 .admin-users-top-search,
@@ -95,7 +110,10 @@
 }
 
 .admin-users-toolbar {
-  margin-top: 22px;
+  order: 3;
+  margin-top: 0;
+  margin-left: auto;
+  justify-content: flex-end;
 }
 
 .admin-users-toolbar-actions {
@@ -103,6 +121,7 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+  margin-left: 0;
 }
 
 .admin-users-btn {
@@ -132,10 +151,12 @@
 }
 
 .admin-users-tabs {
+  order: 2;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-top: 20px;
+  margin-top: 0;
+  margin-right: auto;
 }
 
 .admin-users-tab {
@@ -144,17 +165,17 @@
   gap: 10px;
   height: 34px;
   padding: 0 14px;
-  border: 1px solid #d7e0ed;
+  border: 1px solid #d0dbec;
   border-radius: 999px;
-  background: #fff;
+  background: #eef3fb;
   color: #364965;
   cursor: pointer;
   font-weight: 600;
 }
 
 .admin-users-tab.is-active {
-  background: #eef3fb;
-  border-color: #d0dbec;
+  background: #fff;
+  border-color: #d7e0ed;
 }
 
 .admin-users-tab-count {
@@ -173,6 +194,10 @@
 .admin-users-search-card,
 .admin-users-table-card {
   margin-bottom: 18px;
+}
+
+.admin-users-search-card {
+  display: none;
 }
 
 .admin-users-table-title {
@@ -396,6 +421,17 @@
   .admin-users-header-top,
   .admin-users-toolbar {
     align-items: stretch;
+  }
+
+  .admin-users-tabs,
+  .admin-users-toolbar {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .admin-users-toolbar {
+    justify-content: flex-start;
   }
 
   .admin-users-top-search {

@@ -250,8 +250,10 @@ export default function AdminReservations() {
             <div className="admin-reservations-heading">
               <h1 className="admin-reservations-title">Gestion des réservations</h1>
             </div>
+          </header>
 
-            <div className="admin-reservations-tools">
+          <div className="admin-reservations-content">
+            <div className="admin-reservations-controls">
               <label className="admin-reservations-search">
                 <SearchIcon />
                 <input
@@ -262,66 +264,58 @@ export default function AdminReservations() {
                   aria-label="Rechercher une réservation"
                 />
               </label>
-            </div>
-          </header>
 
-          <div className="admin-reservations-content">
-            <section className="admin-reservations-panel">
-              <div className="admin-reservations-panel-top">
-                <div className="admin-reservations-panel-headline">
-                  <div className="admin-reservations-panel-heading">
-                    <h2 className="admin-reservations-panel-title">Demandes de réservation</h2>
-                  </div>
-                </div>
+              <div className="admin-reservations-floating-filters" aria-label="Filtres des réservations">
+                <div className="admin-reservations-filters">
+                <label className="admin-reservations-filter">
+                  <span>Statut</span>
+                  <select
+                    value={statusFilter}
+                    onChange={(event) => setStatusFilter(event.target.value)}
+                    aria-label="Filtrer par statut"
+                  >
+                    {STATUS_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-                <div className="admin-reservations-filters" aria-label="Filtres des réservations">
-                  <label className="admin-reservations-filter">
-                    <span>Statut</span>
-                    <select
-                      value={statusFilter}
-                      onChange={(event) => setStatusFilter(event.target.value)}
-                      aria-label="Filtrer par statut"
-                    >
-                      {STATUS_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                <label className="admin-reservations-filter">
+                  <span>Type</span>
+                  <select
+                    value={typeFilter}
+                    onChange={(event) => setTypeFilter(event.target.value)}
+                    aria-label="Filtrer par type"
+                  >
+                    {TYPE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-                  <label className="admin-reservations-filter">
-                    <span>Type</span>
-                    <select
-                      value={typeFilter}
-                      onChange={(event) => setTypeFilter(event.target.value)}
-                      aria-label="Filtrer par type"
-                    >
-                      {TYPE_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label className="admin-reservations-filter">
-                    <span>Conflit</span>
-                    <select
-                      value={conflictFilter}
-                      onChange={(event) => setConflictFilter(event.target.value)}
-                      aria-label="Filtrer par conflit"
-                    >
-                      {CONFLICT_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                <label className="admin-reservations-filter">
+                  <span>Conflit</span>
+                  <select
+                    value={conflictFilter}
+                    onChange={(event) => setConflictFilter(event.target.value)}
+                    aria-label="Filtrer par conflit"
+                  >
+                    {CONFLICT_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 </div>
               </div>
+            </div>
 
+            <section className="admin-reservations-panel">
               {/* Gestion de l'affichage du chargement et des erreurs */}
               {loading ? (
                 <div className="admin-reservations-empty">Chargement des réservations depuis le serveur...</div>
@@ -633,14 +627,6 @@ export default function AdminReservations() {
                 }
               >
                 Valider
-              </button>
-
-              <button
-                type="button"
-                className="admin-reservations-modal-action admin-reservations-modal-action--adjust"
-                onClick={() => handleStatusChange(selectedReservation, "AJUSTEE", true)}
-              >
-                Ajuster
               </button>
 
               <button

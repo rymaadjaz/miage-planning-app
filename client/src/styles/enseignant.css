@@ -871,6 +871,36 @@ body {
 .notif-body p { font-size: .85rem; color: var(--muted); line-height: 1.5; margin: 0; }
 .notif-body .notif-time { font-size: .76rem; color: var(--muted); margin-top: 6px; }
 
+.ens-notif-state {
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.notif-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.notif-read-btn {
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid #dbe3ed;
+  background: #ffffff;
+  color: #355d95;
+  font-size: .76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s ease, background .15s ease;
+}
+
+.notif-read-btn:hover {
+  transform: translateY(-1px);
+  background: #edf3fb;
+}
+
 .notif-divider { height: 1px; background: var(--border); margin: 0 16px; }
 
 .ens-modal-overlay {

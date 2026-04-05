@@ -2,21 +2,25 @@ const ApiError = require("../utils/ApiError");
 const notificationModel = require("../models/notification.model");
 
 const ROLES_VALIDES = ["enseignant", "etudiant", "administratif"];
-const STATUS_VALIDES = ["nouveau", "lu", "important"];
+const STATUS_VALIDES = ["nouveau", "lu"];
 const ICONS_VALIDES = ["info", "location", "check", "warning"];
 
 function normalizeString(value) {
   return String(value || "").trim().toLowerCase();
 }
 
-function canAccessNotification(user, notificationRole) {
+function canAccessNotification(user, notificationRow) {
   const currentRole = normalizeString(user?.role);
-  const targetRole = normalizeString(notificationRole);
+  const targetRole = normalizeString(notificationRow?.role);
 
   if (!currentRole) return false;
   if (currentRole === "administratif") return true;
 
-  return currentRole === targetRole;
+  if (currentRole !== targetRole) {
+    return false;
+  }
+
+  return true;
 }
 
 exports.getAll = async (req, res) => {
@@ -59,7 +63,7 @@ exports.getById = async (req, res) => {
     throw new ApiError(404, "Notification introuvable");
   }
 
-  if (!canAccessNotification(req.user, row.role)) {
+  if (!canAccessNotification(req.user, row)) {
     throw new ApiError(403, "Accès interdit");
   }
 
@@ -78,6 +82,7 @@ exports.create = async (req, res) => {
     message,
     date,
     iconType = "info",
+    cohorte_id = null,
   } = req.body;
 
   if (!ROLES_VALIDES.includes(normalizeString(role))) {
@@ -107,6 +112,10 @@ exports.create = async (req, res) => {
     message: String(message).trim(),
     date: date || new Date().toISOString(),
     iconType: normalizeString(iconType),
+    cohorte_id:
+      normalizeString(role) === "etudiant" && Number.isInteger(Number(cohorte_id))
+        ? Number(cohorte_id)
+        : null,
   });
 
   res.status(201).json({
@@ -130,7 +139,7 @@ exports.markAsRead = async (req, res) => {
     throw new ApiError(404, "Notification introuvable");
   }
 
-  if (!canAccessNotification(req.user, existing.role)) {
+  if (!canAccessNotification(req.user, existing)) {
     throw new ApiError(403, "Accès interdit");
   }
 
