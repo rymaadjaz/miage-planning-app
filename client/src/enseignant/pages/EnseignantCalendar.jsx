@@ -391,11 +391,7 @@ export default function EnseignantCalendar() {
                               <span className="cal-day-event-title">{s.titre ?? s.matiere ?? "Cours"}</span>
                               <span className="cal-day-event-meta">{s.salle} - {debut} - {fin}</span>
                               <span className="cal-day-event-teacher">{getTeacherName(s)}</span>
-<<<<<<< HEAD
                             </button>
-=======
-                            </div>
->>>>>>> 788815c (Save UI and login updates)
                           );
                         })
                       )}
@@ -435,11 +431,7 @@ export default function EnseignantCalendar() {
                               <span>{s.matiere}</span>
                               <small>{debut}</small>
                               <small className="cal-month-item-teacher">{getTeacherName(s)}</small>
-<<<<<<< HEAD
                             </button>
-=======
-                            </div>
->>>>>>> 788815c (Save UI and login updates)
                           );
                         })}
                         {sessions.length > 2 && <div className="cal-month-more">+{sessions.length - 2}</div>}
