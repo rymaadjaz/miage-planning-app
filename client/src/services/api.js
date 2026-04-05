@@ -35,6 +35,12 @@ function statusLabel(status = "") {
   return status || "EN ATTENTE";
 }
 
+function toReservationType(type = "") {
+  const t = String(type).toUpperCase();
+  if (t === "EXAM") return "EXAMEN";
+  return t || null;
+}
+
 async function apiFetch(path, options = {}) {
   return request(path, options);
 }
@@ -241,7 +247,7 @@ export async function createDemande(demande) {
     date_souhaitee: date || null,
     heure_debut_souhaitee: debut || null,
     duree_souhaitee: duree_souhaitee || null,
-    type_seance_souhaitee: type || null,
+    type_seance_souhaitee: toReservationType(type),
     cohorte_id: cohorte_id || null,
     enseignant_id: enseignant_id || getUser()?.id || null,
     motif: motif || null,

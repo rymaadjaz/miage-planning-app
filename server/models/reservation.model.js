@@ -154,75 +154,67 @@ exports.findActiveBySeance = (seanceId, excludeReservationId = null) => {
     FROM Reservation
     WHERE seance_id = ?
       AND type_demande = 'MODIFICATION'
-      AND statut IN ('PLANIFIEE', 'VALIDEE', 'EN_ATTENTE')
+      AND statut = 'EN_ATTENTE'
       ${excludeReservationId ? "AND id != ?" : ""}
     LIMIT 1
   `;
-
   const params = excludeReservationId ? [seanceId, excludeReservationId] : [seanceId];
   return dbGet(sql, params);
 };
 
-exports.findSalleConflicts = (salleId, startSql, endSql, excludeReservationId = null) => {
+// 🚀 REQUÊTE SALLE CORRIGÉE (Ajout du typeSeance pour les priorités)
+exports.findSalleConflicts = (salleId, startSql, endSql, excludeSeanceId = null) => {
   const sql = `
-    SELECT r.id
-    FROM Reservation r
-    JOIN Seance se ON r.seance_id = se.id
-    WHERE r.salle_id = ?
-      AND r.type_demande = 'MODIFICATION'
-      AND r.statut IN ('PLANIFIEE', 'VALIDEE', 'EN_ATTENTE')
-      ${excludeReservationId ? "AND r.id != ?" : ""}
+    SELECT se.id, se.typeSeance
+    FROM Seance se
+    JOIN Reservation r ON r.seance_id = se.id
+    WHERE r.salle_id = ? 
+      AND se.statut != 'ANNULE'
+      AND r.statut IN ('VALIDEE', 'PLANIFIEE')
+      ${excludeSeanceId ? "AND se.id != ?" : ""}
       AND datetime(se.dateSeance || ' ' || se.heureDebut) < datetime(?)
       AND datetime(se.dateSeance || ' ' || se.heureDebut, '+' || se.duree || ' minutes') > datetime(?)
   `;
-
-  const params = excludeReservationId
-    ? [salleId, excludeReservationId, endSql, startSql]
+  const params = excludeSeanceId 
+    ? [salleId, excludeSeanceId, endSql, startSql] 
     : [salleId, endSql, startSql];
-
+    
   return dbAll(sql, params);
 };
 
-exports.findCohorteConflicts = (cohorteId, startSql, endSql, excludeReservationId = null) => {
+// 🚀 REQUÊTE COHORTE CORRIGÉE (Ajout du typeSeance)
+exports.findCohorteConflicts = (cohorteId, startSql, endSql, excludeSeanceId = null) => {
   const sql = `
-    SELECT r.id
-    FROM Reservation r
-    JOIN Seance se ON r.seance_id = se.id
-    WHERE se.cohorte_id = ?
-      AND r.type_demande = 'MODIFICATION'
-      AND r.statut IN ('PLANIFIEE', 'VALIDEE', 'EN_ATTENTE')
-      ${excludeReservationId ? "AND r.id != ?" : ""}
-      AND datetime(se.dateSeance || ' ' || se.heureDebut) < datetime(?)
-      AND datetime(se.dateSeance || ' ' || se.heureDebut, '+' || se.duree || ' minutes') > datetime(?)
+    SELECT id, typeSeance FROM Seance 
+    WHERE cohorte_id = ? 
+      AND statut != 'ANNULE'
+      ${excludeSeanceId ? "AND id != ?" : ""}
+      AND datetime(dateSeance || ' ' || heureDebut) < datetime(?)
+      AND datetime(dateSeance || ' ' || heureDebut, '+' || duree || ' minutes') > datetime(?)
   `;
-
-  const params = excludeReservationId
-    ? [cohorteId, excludeReservationId, endSql, startSql]
+  const params = excludeSeanceId 
+    ? [cohorteId, excludeSeanceId, endSql, startSql] 
     : [cohorteId, endSql, startSql];
-
+    
   return dbAll(sql, params);
 };
 
-exports.findEnseignantConflicts = (enseignantId, startSql, endSql, excludeReservationId = null) => {
+// 🚀 REQUÊTE ENSEIGNANT CORRIGÉE (Ajout du typeSeance)
+exports.findEnseignantConflicts = (enseignantId, startSql, endSql, excludeSeanceId = null) => {
   const sql = `
-    SELECT r.id
-    FROM Reservation r
-    JOIN Seance se ON r.seance_id = se.id
-    WHERE se.enseignant_id = ?
-      AND r.type_demande = 'MODIFICATION'
-      AND r.statut IN ('PLANIFIEE', 'VALIDEE', 'EN_ATTENTE')
-      ${excludeReservationId ? "AND r.id != ?" : ""}
-      AND datetime(se.dateSeance || ' ' || se.heureDebut) < datetime(?)
-      AND datetime(se.dateSeance || ' ' || se.heureDebut, '+' || se.duree || ' minutes') > datetime(?)
+    SELECT id, typeSeance FROM Seance 
+    WHERE enseignant_id = ? 
+      AND statut != 'ANNULE'
+      ${excludeSeanceId ? "AND id != ?" : ""}
+      AND datetime(dateSeance || ' ' || heureDebut) < datetime(?)
+      AND datetime(dateSeance || ' ' || heureDebut, '+' || duree || ' minutes') > datetime(?)
   `;
-
-  const params = excludeReservationId
-    ? [enseignantId, excludeReservationId, endSql, startSql]
+  const params = excludeSeanceId 
+    ? [enseignantId, excludeSeanceId, endSql, startSql] 
     : [enseignantId, endSql, startSql];
-
+    
   return dbAll(sql, params);
 };
-
 exports.findAlternativeSalles = ({ excludeSalleId, type, effectif, pmr, limit = 5 }) =>
   dbAll(
     `

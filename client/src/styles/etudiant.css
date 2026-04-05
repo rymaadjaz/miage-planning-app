@@ -1,3 +1,10 @@
+.etu-page,
+.etu-notif-content,
+.etu-detail-content,
+.etu-detail-notfound-content {
+  color: var(--text);
+}
+
 .etu-nav-card {
   padding: 0;
   margin-bottom: 14px;
@@ -68,6 +75,14 @@
   max-width: 760px;
 }
 
+.etu-notif-content .ens-card,
+.etu-detail-content .ens-card,
+.etu-detail-notfound-content .ens-card {
+  border-radius: 18px;
+  border: 1px solid #d6e3f0;
+  box-shadow: 0 8px 24px rgba(25, 43, 69, .08);
+}
+
 .etu-notif-header {
   display: flex;
   align-items: flex-start;
@@ -78,6 +93,7 @@
 .etu-notif-title-block h2 {
   font-weight: 800;
   font-size: 1.2rem;
+  color: var(--text);
 }
 
 .etu-notif-title-block p {
@@ -112,6 +128,10 @@
 .etu-detail-notfound-card {
   text-align: center;
   padding: 40px;
+  background: rgba(255,255,255,.95);
+  border-radius: 18px;
+  border: 1px solid #d6e3f0;
+  box-shadow: 0 8px 24px rgba(25, 43, 69, .08);
 }
 
 .etu-detail-notfound-icon {
@@ -122,6 +142,7 @@
 .etu-detail-notfound-title {
   font-weight: 800;
   margin-bottom: 8px;
+  color: var(--text);
 }
 
 .etu-detail-notfound-text {
@@ -156,6 +177,7 @@
   font-weight: 800;
   font-size: 1.15rem;
   margin-bottom: 2px;
+  color: var(--text);
 }
 
 .etu-detail-subtitle {

@@ -4,7 +4,7 @@ import { clearToken } from '../services/api';
 
 const navbarStyles = `
   .navbar {
-    background: #1e2d4a;
+    background: #324c82;
     color: #fff;
     display: flex;
     align-items: center;
@@ -115,7 +115,7 @@ const navbarStyles = `
     color: #5e6f86;
   }
   .profile-item.logout {
-    background: #2d4d75;
+    background: #324c82;
     color: #fff;
     border-radius: 6px;
     width: 100%;
@@ -124,7 +124,7 @@ const navbarStyles = `
     padding: 8px 9px;
   }
   .profile-item.logout:hover {
-    background: #243e61;
+    background: #2a3f6b;
     color: #fff;
   }
   .profile-separator {
@@ -140,7 +140,7 @@ const navbarStyles = `
     height: 14px;
     background: #F5A623;
     border-radius: 50%;
-    border: 2px solid #1e2d4a;
+    border: 2px solid #324c82;
     font-size: 8px;
     color: #fff;
     display: flex;

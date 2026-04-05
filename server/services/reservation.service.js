@@ -58,15 +58,14 @@ async function saveConflit({
   seance_id_2 = null,
 }) {
   try {
+    // 🚀 ON AJOUTE 'resolu' ET LA VALEUR 0 DANS LE SQL
     await dbRun(
-      `
-      INSERT INTO Conflit (type, description, reservation_id, seance_id_1, seance_id_2)
-      VALUES (?, ?, ?, ?, ?)
-      `,
+      `INSERT INTO Conflit (type, description, reservation_id, seance_id_1, seance_id_2, resolu)
+       VALUES (?, ?, ?, ?, ?, 0)`,
       [type, description, reservation_id, seance_id_1, seance_id_2]
     );
   } catch (error) {
-    console.error("Erreur lors de l'enregistrement du conflit :", error.message);
+    console.error("Erreur enregistrement conflit :", error.message);
   }
 }
 
@@ -117,160 +116,112 @@ exports.createReservation = async ({
   let salle = null;
   if (salle_id) {
     salle = await findSalleById(salle_id);
-    if (!salle) {
-      throw new ApiError(404, "Salle introuvable");
-    }
+    if (!salle) throw new ApiError(404, "Salle introuvable");
   }
 
+  // ==========================================
+  // BLOC MODIFICATION
+  // ==========================================
   if (type_demande === "MODIFICATION") {
-    if (!seance_id) {
-      throw new ApiError(400, "seance_id est obligatoire pour une demande de modification");
-    }
+    if (!seance_id) throw new ApiError(400, "seance_id est obligatoire");
 
     const seance = await findSeanceById(seance_id);
-    if (!seance) {
-      throw new ApiError(404, "Séance introuvable");
-    }
-
-    if (seance.statut === "ANNULE") {
-      throw new ApiError(400, "Impossible de faire une demande sur une séance annulée");
-    }
+    if (!seance) throw new ApiError(404, "Séance introuvable");
+    if (seance.statut === "ANNULE") throw new ApiError(400, "Séance annulée");
 
     const existingReservation = await reservationModel.findActiveBySeance(seance_id);
-    if (existingReservation) {
-      throw new ApiError(409, "Cette séance possède déjà une réservation active");
-    }
+    if (existingReservation) throw new ApiError(409, "Réservation déjà active");
 
     const cohorte = await findCohorteById(seance.cohorte_id);
-    if (!cohorte) {
-      throw new ApiError(404, "Cohorte introuvable");
-    }
-
     if (salle && salle.capacite < cohorte.effectif) {
-      await saveConflit({
-        type: "CAPACITE",
-        description: `Capacité insuffisante pour la séance ${seance_id} dans la salle ${salle_id}`,
-        seance_id_1: seance_id,
-      });
-
-      throw new ApiError(409, "Capacité insuffisante", {
-        capaciteSalle: salle.capacite,
-        effectifCohorte: cohorte.effectif,
-      });
+      await saveConflit({ type: "CAPACITE", description: "Capacité insuffisante", seance_id_1: seance_id });
+      throw new ApiError(409, "Capacité insuffisante");
     }
 
     const { startSql, endSql } = buildDateRange({
-      dateSeance: seance.dateSeance,
-      heureDebut: seance.heureDebut,
-      duree: seance.duree,
+      dateSeance: date_souhaitee || seance.dateSeance,
+      heureDebut: heure_debut_souhaitee || seance.heureDebut,
+      duree: duree_souhaitee || seance.duree,
     });
 
     if (salle) {
       const maintenance = await findMaintenanceOverlap(salle_id, startSql, endSql);
       if (maintenance) {
-        await saveConflit({
-          type: "MAINTENANCE",
-          description: `Salle ${salle_id} en maintenance sur le créneau de la séance ${seance_id}`,
-          seance_id_1: seance_id,
-        });
-
-        throw new ApiError(409, "Salle en maintenance sur ce créneau", maintenance);
+        await saveConflit({ type: "MAINTENANCE", description: "Salle en maintenance", seance_id_1: seance_id });
+        throw new ApiError(409, "Salle en maintenance", maintenance);
       }
 
       const [confSalle, confCohorte, confEnseignant] = await Promise.all([
-        reservationModel.findSalleConflicts(salle_id, startSql, endSql),
-        reservationModel.findCohorteConflicts(seance.cohorte_id, startSql, endSql),
-        reservationModel.findEnseignantConflicts(seance.enseignant_id, startSql, endSql),
+        reservationModel.findSalleConflicts(salle_id, startSql, endSql, seance_id),
+        reservationModel.findCohorteConflicts(seance.cohorte_id, startSql, endSql, seance_id),
+        reservationModel.findEnseignantConflicts(seance.enseignant_id, startSql, endSql, seance_id),
       ]);
 
       if (confSalle.length || confCohorte.length || confEnseignant.length) {
-        const alternatives = await reservationModel.findAlternativeSalles({
-          excludeSalleId: salle.id,
-          type: salle.type,
-          effectif: cohorte.effectif,
-          pmr: salle.accessibilitePMR,
-          limit: 5,
-        });
+        const prioriteNouvelle = PRIORITY_MAP[type_seance_souhaitee || seance.typeSeance] ?? 10;
+        const allConflicts = [...confSalle, ...confCohorte, ...confEnseignant];
+        const prioriteExistanteMax = Math.max(...allConflicts.map(c => PRIORITY_MAP[c.typeSeance] ?? 10));
 
-        await saveConflit({
-          type: "CONFLIT_RESERVATION",
-          description: `Conflit détecté pour la séance ${seance_id} dans la salle ${salle_id}`,
-          seance_id_1: seance_id,
-        });
+        // 🧠 SYSTÈME DE PRIORITÉ POUR MODIFICATION
+        if (prioriteNouvelle > prioriteExistanteMax) {
+          const priorite = PRIORITY_MAP[seance.typeSeance] ?? 10;
+          const result = await reservationModel.create({
+            type_demande, seance_id, salle_id, demandeur_id: created_by, cohorte_id: seance.cohorte_id,
+            enseignant_id: seance.enseignant_id, statut: "EN_ATTENTE", priorite, motif,
+            date_souhaitee, heure_debut_souhaitee, duree_souhaitee, type_seance_souhaitee,
+          });
 
-        throw new ApiError(409, "Conflit détecté", {
-          conflicts: {
-            salle: confSalle.map((x) => x.id),
-            cohorte: confCohorte.map((x) => x.id),
-            enseignant: confEnseignant.map((x) => x.id),
-          },
-          alternatives,
-        });
+          // 🚀 RECUPERATION SECURISEE
+          const newResaId = result.lastID || result.id || result;
+
+          await saveConflit({
+            type: "PRIORITE",
+            description: `⚠️ Une demande prioritaire (${type_seance_souhaitee || seance.typeSeance}) s'impose sur un créneau. Arbitrage Admin requis.`,
+            reservation_id: newResaId, 
+            seance_id_1: allConflicts[0].id
+          });
+          return { id: newResaId, message: "Demande prioritaire envoyée avec succès ! En attente d'arbitrage." };
+        } else {
+          const alternatives = await reservationModel.findAlternativeSalles({
+            excludeSalleId: salle.id, type: salle.type, effectif: cohorte.effectif, pmr: salle.accessibilitePMR, limit: 5,
+          });
+          await saveConflit({ type: "CONFLIT_RESERVATION", description: `Créneau occupé.`, seance_id_1: seance_id });
+          throw new ApiError(409, "Créneau déjà occupé par un cours de priorité égale ou supérieure.", { alternatives });
+        }
       }
     }
 
+    // Création normale si aucun conflit
     const priorite = PRIORITY_MAP[seance.typeSeance] ?? 10;
-
     const result = await reservationModel.create({
-      type_demande,
-      seance_id,
-      salle_id,
-      demandeur_id: created_by,
-      cohorte_id: seance.cohorte_id,
-      enseignant_id: seance.enseignant_id,
-      statut: "EN_ATTENTE",
-      priorite,
-      motif,
+      type_demande, seance_id, salle_id, demandeur_id: created_by, cohorte_id: seance.cohorte_id,
+      enseignant_id: seance.enseignant_id, statut: "EN_ATTENTE", priorite, motif,
+      date_souhaitee, heure_debut_souhaitee, duree_souhaitee, type_seance_souhaitee,
     });
-
-    await historiqueService.logAction({
-      auteur_id: created_by,
-      entite: "Reservation",
-      entite_id: result.lastID,
-      action: "CREATE",
-      detail: `Création d'une demande de modification pour la séance ${seance_id}`,
-    });
-
-    return {
-      id: result.lastID,
-      message: "Demande de modification créée avec succès",
-    };
+    
+    const finalId = result.lastID || result.id || result;
+    return { id: finalId, message: "Demande de modification créée avec succès" };
   }
 
-  if (
-    !date_souhaitee ||
-    !heure_debut_souhaitee ||
-    !duree_souhaitee ||
-    !type_seance_souhaitee ||
-    !cohorte_id ||
-    !enseignant_id
-  ) {
-    throw new ApiError(400, "Champs requis manquants pour une demande d'ajout");
+  // ==========================================
+  // BLOC AJOUT
+  // ==========================================
+  if (!date_souhaitee || !heure_debut_souhaitee || !duree_souhaitee || !type_seance_souhaitee || !cohorte_id || !enseignant_id) {
+    throw new ApiError(400, "Champs requis manquants");
   }
 
   const cohorte = await findCohorteById(cohorte_id);
-  if (!cohorte) {
-    throw new ApiError(404, "Cohorte introuvable");
-  }
-
   if (salle && salle.capacite < cohorte.effectif) {
-    throw new ApiError(409, "Capacité insuffisante", {
-      capaciteSalle: salle.capacite,
-      effectifCohorte: cohorte.effectif,
-    });
+    throw new ApiError(409, "Capacité insuffisante");
   }
 
   const { startSql, endSql } = buildDateRange({
-    dateSeance: date_souhaitee,
-    heureDebut: heure_debut_souhaitee,
-    duree: duree_souhaitee,
+    dateSeance: date_souhaitee, heureDebut: heure_debut_souhaitee, duree: duree_souhaitee,
   });
 
   if (salle) {
     const maintenance = await findMaintenanceOverlap(salle_id, startSql, endSql);
-    if (maintenance) {
-      throw new ApiError(409, "Salle en maintenance sur ce créneau", maintenance);
-    }
+    if (maintenance) throw new ApiError(409, "Salle en maintenance", maintenance);
 
     const [confSalle, confCohorte, confEnseignant] = await Promise.all([
       reservationModel.findSalleConflicts(salle_id, startSql, endSql),
@@ -279,68 +230,108 @@ exports.createReservation = async ({
     ]);
 
     if (confSalle.length || confCohorte.length || confEnseignant.length) {
-      const alternatives = await reservationModel.findAlternativeSalles({
-        excludeSalleId: salle.id,
-        type: salle.type,
-        effectif: cohorte.effectif,
-        pmr: salle.accessibilitePMR,
-        limit: 5,
-      });
+      const prioriteNouvelle = PRIORITY_MAP[type_seance_souhaitee] ?? 10;
+      const allConflicts = [...confSalle, ...confCohorte, ...confEnseignant];
+      const prioriteExistanteMax = Math.max(...allConflicts.map(c => PRIORITY_MAP[c.typeSeance] ?? 10));
 
-      await saveConflit({
-        type: "CONFLIT_AJOUT",
-        description: `Conflit détecté pour la demande d'ajout sur la salle ${salle_id}`,
-      });
+      // 🧠 SYSTÈME DE PRIORITÉ POUR L'AJOUT
+      if (prioriteNouvelle > prioriteExistanteMax) {
+        const priorite = PRIORITY_MAP[type_seance_souhaitee] ?? 10;
+        const result = await reservationModel.create({
+          type_demande, seance_id: null, salle_id, demandeur_id: created_by, date_souhaitee, heure_debut_souhaitee,
+          duree_souhaitee, type_seance_souhaitee, cohorte_id, enseignant_id, statut: "EN_ATTENTE", priorite, motif,
+        });
 
-      throw new ApiError(409, "Conflit détecté", {
-        conflicts: {
-          salle: confSalle.map((x) => x.id),
-          cohorte: confCohorte.map((x) => x.id),
-          enseignant: confEnseignant.map((x) => x.id),
-        },
-        alternatives,
-      });
+        // 🚀 RECUPERATION SECURISEE
+        const newResaId = result.lastID || result.id || result;
+
+        await saveConflit({
+          type: "PRIORITE",
+          description: `⚠️ Un nouvel événement prioritaire (${type_seance_souhaitee}) s'impose sur un créneau occupé. Arbitrage Admin requis.`,
+          reservation_id: newResaId, 
+          seance_id_1: allConflicts[0].id 
+        });
+        return { id: newResaId, message: "Demande prioritaire envoyée avec succès ! En attente d'arbitrage." };
+      } else {
+        const alternatives = await reservationModel.findAlternativeSalles({
+          excludeSalleId: salle.id, type: salle.type, effectif: cohorte.effectif, pmr: salle.accessibilitePMR, limit: 5,
+        });
+        await saveConflit({ type: "CONFLIT_AJOUT", description: `Le créneau est occupé.` });
+        throw new ApiError(409, "Créneau déjà occupé par un cours de priorité égale ou supérieure.", { alternatives });
+      }
     }
   }
 
+  // Création normale si aucun conflit
   const priorite = PRIORITY_MAP[type_seance_souhaitee] ?? 10;
-
   const result = await reservationModel.create({
-    type_demande,
-    seance_id: null,
-    salle_id,
-    demandeur_id: created_by,
-    date_souhaitee,
-    heure_debut_souhaitee,
-    duree_souhaitee,
-    type_seance_souhaitee,
-    cohorte_id,
-    enseignant_id,
-    statut: "EN_ATTENTE",
-    priorite,
-    motif,
+    type_demande, seance_id: null, salle_id, demandeur_id: created_by, date_souhaitee, heure_debut_souhaitee,
+    duree_souhaitee, type_seance_souhaitee, cohorte_id, enseignant_id, statut: "EN_ATTENTE", priorite, motif,
   });
 
-  await historiqueService.logAction({
-    auteur_id: created_by,
-    entite: "Reservation",
-    entite_id: result.lastID,
-    action: "CREATE",
-    detail: `Création d'une demande d'ajout pour la cohorte ${cohorte_id}`,
-  });
-
-  return {
-    id: result.lastID,
-    message: "Demande d'ajout créée avec succès",
-  };
+  const finalId = result.lastID || result.id || result;
+  return { id: finalId, message: "Demande d'ajout créée avec succès" };
 };
-
 exports.updateReservation = async (reservationId, payload, userId = null) => {
   const existing = await reservationModel.findById(reservationId);
   if (!existing) {
     throw new ApiError(404, "Réservation introuvable");
   }
 
+  // 🚀 LE COUPE-FILE (Validation par l'Admin)
+  if (payload.statut && !payload.date_souhaitee && !payload.salle_id) {
+    
+    // CAS 1 : Validation d'un AJOUT
+    // ✅ VERSION CORRIGÉE (Ligne 160 environ)
+    if (payload.statut === "VALIDEE" && !existing.seance_id && existing.type_demande === "AJOUT") {
+      const newSeance = await dbRun(
+        `INSERT INTO Seance (dateSeance, heureDebut, duree, typeSeance, statut, description, cohorte_id, enseignant_id, salle_id) 
+        VALUES (?, ?, ?, ?, 'VALIDE', ?, ?, ?, ?)`, // 🚀 ICI : 'VALIDE' au lieu de 'PLANIFIE'
+        [
+          existing.date_souhaitee,
+          existing.heure_debut_souhaitee,
+          existing.duree_souhaitee,
+          existing.type_seance_souhaitee,
+          existing.motif || "Généré depuis une réservation",
+          existing.cohorte_id,
+          existing.enseignant_id,
+          existing.salle_id
+        ]
+      );
+      
+      const generatedId = newSeance.lastID || newSeance.id;
+      await dbRun("UPDATE Reservation SET seance_id = ?, statut = 'VALIDEE' WHERE id = ?", [generatedId, reservationId]);
+    }
+    // CAS 2 : Validation d'un DÉPLACEMENT (MODIFICATION)
+    else if (payload.statut === "VALIDEE" && existing.seance_id && existing.type_demande === "MODIFICATION") {
+      await dbRun(
+        `UPDATE Seance 
+         SET dateSeance = ?, heureDebut = ?, duree = ? 
+         WHERE id = ?`,
+        [
+          existing.date_souhaitee,
+          existing.heure_debut_souhaitee,
+          existing.duree_souhaitee,
+          existing.seance_id
+        ]
+      );
+    }
+
+    // Mise à jour finale du statut de la demande
+    await reservationModel.updateStatus(reservationId, payload.statut);
+    
+    await historiqueService.logAction({
+      auteur_id: userId,
+      entite: "Reservation",
+      entite_id: reservationId,
+      action: "UPDATE_STATUS",
+      detail: `Statut passé à ${payload.statut} pour la réservation ${reservationId}`,
+    });
+
+    return { message: "Statut mis à jour avec succès", id: reservationId };
+  }
+
+  // LOGIQUE DE MISE À JOUR CLASSIQUE
   const data = {
     type_demande: payload.type_demande ?? existing.type_demande,
     seance_id: payload.seance_id ?? existing.seance_id,
@@ -373,35 +364,15 @@ exports.updateReservation = async (reservationId, payload, userId = null) => {
       throw new ApiError(404, "Séance introuvable");
     }
 
-    const duplicate = await reservationModel.findActiveBySeance(data.seance_id, reservationId);
-    if (duplicate) {
-      throw new ApiError(409, "Une autre réservation active existe déjà pour cette séance");
-    }
-
     const priorite = PRIORITY_MAP[seance.typeSeance] ?? 10;
 
     await reservationModel.update(reservationId, {
       ...data,
       cohorte_id: seance.cohorte_id,
       enseignant_id: seance.enseignant_id,
-      date_souhaitee: null,
-      heure_debut_souhaitee: null,
-      duree_souhaitee: null,
-      type_seance_souhaitee: null,
       priorite,
     });
   } else {
-    if (
-      !data.date_souhaitee ||
-      !data.heure_debut_souhaitee ||
-      !data.duree_souhaitee ||
-      !data.type_seance_souhaitee ||
-      !data.cohorte_id ||
-      !data.enseignant_id
-    ) {
-      throw new ApiError(400, "Champs requis manquants pour une demande d'ajout");
-    }
-
     const priorite = PRIORITY_MAP[data.type_seance_souhaitee] ?? 10;
 
     await reservationModel.update(reservationId, {

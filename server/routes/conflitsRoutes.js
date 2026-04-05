@@ -20,7 +20,7 @@ router.get(
   authorizeRoles("administratif"),
   asyncHandler(conflitsController.getUnresolved)
 );
-
+router.post("/:id/trancher", conflitsController.trancherConflit);
 router.get(
   "/:id",
   authMiddleware,

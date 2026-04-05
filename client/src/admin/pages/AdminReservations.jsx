@@ -1,96 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getDemandes, request } from "../../services/api";
 import "../styles/AdminReservations.css";
-
-function addDays(date, days) {
-  const nextDate = new Date(date);
-  nextDate.setDate(nextDate.getDate() + days);
-  return nextDate;
-}
-
-function toDateKey(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-const TODAY_KEY = toDateKey(new Date());
-const TOMORROW_KEY = toDateKey(addDays(new Date(), 1));
-const IN_TWO_DAYS_KEY = toDateKey(addDays(new Date(), 2));
-const NEXT_WEEK_KEY = toDateKey(addDays(new Date(), 7));
-
-const MOCK_RESERVATIONS = [
-  {
-    id: "res-001",
-    teacher: "Dr. Martin",
-    sessionType: "CM",
-    date: TOMORROW_KEY,
-    startTime: "14:00",
-    endTime: "16:00",
-    cohort: "M1 Informatique",
-    room: "Amphi B",
-    status: "EN_ATTENTE",
-    hasConflict: false,
-    priority: "HAUTE",
-    comment: "Demande de réservation pour une séance de cours.",
-    conflictDetails: null,
-  },
-  {
-    id: "res-002",
-    teacher: "Prof. Dupont",
-    sessionType: "TP",
-    date: TODAY_KEY,
-    startTime: "10:00",
-    endTime: "12:00",
-    cohort: "L3 Informatique",
-    room: "Salle B12",
-    status: "EN_ATTENTE",
-    hasConflict: true,
-    priority: "MOYENNE",
-    comment: "Demande nécessitant une vérification.",
-    conflictDetails: {
-      type: "Salle déjà occupée",
-      linkedItem: "Examen M2 Informatique",
-      linkedItemType: "EXAMEN",
-      systemRecommendation:
-        "La demande ne doit pas être validée automatiquement.",
-      suggestedAlternative: "Décaler au créneau 14h-16h",
-      priorityOrderExplanation: "EXAMEN > COURS RÉGULIER > ÉVÉNEMENT PONCTUEL",
-    },
-  },
-  {
-    id: "res-003",
-    teacher: "Mme Karim",
-    sessionType: "EXAMEN",
-    date: IN_TWO_DAYS_KEY,
-    startTime: "08:00",
-    endTime: "10:00",
-    cohort: "M2 Informatique",
-    room: "Salle C21",
-    status: "VALIDEE",
-    hasConflict: false,
-    priority: "HAUTE",
-    comment: "Examen nécessitant une salle dédiée.",
-    conflictDetails: null,
-  },
-  {
-    id: "res-004",
-    teacher: "Prof. Lemaire",
-    sessionType: "TD",
-    date: NEXT_WEEK_KEY,
-    startTime: "09:00",
-    endTime: "11:00",
-    cohort: "L2 Informatique",
-    room: "Salle A05",
-    status: "REFUSEE",
-    hasConflict: false,
-    priority: "FAIBLE",
-    comment: "Créneau non disponible.",
-    conflictDetails: null,
-  },
-];
-
 const STATUS_OPTIONS = [
   { value: "ALL", label: "Tous les statuts" },
   { value: "EN_ATTENTE", label: "EN_ATTENTE" },
@@ -120,8 +31,13 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("fr-FR", {
 });
 
 function formatDateLabel(dateString) {
-  const formatted = DATE_FORMATTER.format(new Date(`${dateString}T12:00:00`));
-  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  if (!dateString) return "-";
+  try {
+    const formatted = DATE_FORMATTER.format(new Date(`${dateString}T12:00:00`));
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  } catch {
+    return dateString;
+  }
 }
 
 function getStatusTone(status) {
@@ -137,16 +53,11 @@ function getPriorityTone(priority) {
   return "medium";
 }
 
+// Composants Icônes
 function SearchIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M21 21L16.65 16.65M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M21 21L16.65 16.65M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -154,13 +65,7 @@ function SearchIcon() {
 function WarningIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M12 9V12.5M12 16H12.01M10.29 3.86002L1.82001 18C1.64538 18.3024 1.553 18.6451 1.55206 18.9944C1.55113 19.3436 1.64167 19.6868 1.81468 19.9901C1.98769 20.2934 2.23706 20.546 2.53811 20.723C2.83916 20.8999 3.18126 20.995 3.53001 20.999L20.47 21C20.8188 20.995 21.1609 20.8999 21.4619 20.723C21.763 20.546 22.0123 20.2934 22.1853 19.9901C22.3584 19.6868 22.4489 19.3436 22.4479 18.9944C22.447 18.6451 22.3546 18.3024 22.18 18L13.71 3.86002C13.5318 3.56613 13.2819 3.32208 12.9837 3.15096C12.6855 2.97984 12.3485 2.88733 12.005 2.88232C11.6616 2.87731 11.322 2.95998 11.0188 3.12235C10.7156 3.28471 10.4587 3.52137 10.29 3.81002"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M12 9V12.5M12 16H12.01M10.29 3.86002L1.82001 18C1.64538 18.3024 1.553 18.6451 1.55206 18.9944C1.55113 19.3436 1.64167 19.6868 1.81468 19.9901C1.98769 20.2934 2.23706 20.546 2.53811 20.723C2.83916 20.8999 3.18126 20.995 3.53001 20.999L20.47 21C20.8188 20.995 21.1609 20.8999 21.4619 20.723C21.763 20.546 22.0123 20.2934 22.1853 19.9901C22.3584 19.6868 22.4489 19.3436 22.4479 18.9944C22.447 18.6451 22.3546 18.3024 22.18 18L13.71 3.86002C13.5318 3.56613 13.2819 3.32208 12.9837 3.15096C12.6855 2.97984 12.3485 2.88733 12.005 2.88232C11.6616 2.87731 11.322 2.95998 11.0188 3.12235C10.7156 3.28471 10.4587 3.52137 10.29 3.81002" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -168,25 +73,72 @@ function WarningIcon() {
 function CloseIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M18 6L6 18M6 6L18 18"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
 export default function AdminReservations() {
-  const navigate = useNavigate();
-  const [reservations, setReservations] = useState(MOCK_RESERVATIONS);
+  const navigate = useNavigate();  
+  const [reservations, setReservations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [conflictFilter, setConflictFilter] = useState("all");
   const [selectedReservation, setSelectedReservation] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchReservations() {
+      try {
+        setLoading(true);
+        const data = await getDemandes(); // Appel à ton backend via api.js
+        if (isMounted) {
+          // On transforme les données du backend pour coller au design du composant
+          const formattedData = data.map((d) => {
+            // Conversion du statut front vers le statut interne attendu
+            let internalStatus = "EN_ATTENTE";
+            if (d.statut === "VALIDÉE") internalStatus = "VALIDEE";
+            if (d.statut === "REFUSÉE") internalStatus = "REFUSEE";
+            if (d.statut === "AJUSTÉE") internalStatus = "AJUSTEE";
+            if (d.statut === "EN ATTENTE") internalStatus = "EN_ATTENTE";
+
+            return {
+              id: d.id,
+              teacher: d.enseignant || "Inconnu",
+              sessionType: d.type || "CM",
+              date: d.date,
+              startTime: d.debut,
+              endTime: d.fin,
+              cohort: d.cohorte || "-",
+              room: d.salle || "-",
+              status: internalStatus,
+              hasConflict: false, // A implémenter plus tard si ton API renvoie les conflits
+              priority: "MOYENNE", 
+              comment: d.motif || "Aucun commentaire",
+              conflictDetails: null, 
+            };
+          });
+          
+          setReservations(formattedData);
+        }
+      } catch (err) {
+        if (isMounted) setError("Impossible de charger les réservations.");
+        console.error("Erreur API:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    fetchReservations();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredReservations = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
@@ -214,7 +166,11 @@ export default function AdminReservations() {
     });
   }, [reservations, searchTerm, statusFilter, typeFilter, conflictFilter]);
 
-  function handleStatusChange(reservation, nextStatus, closeModal = false) {
+  async function handleStatusChange(reservation, nextStatus, closeModal = false) {
+    // 1. On sauvegarde temporairement l'ancien statut en cas d'erreur
+    const oldStatus = reservation.status;
+
+    // 2. On met à jour l'affichage immédiatement (pour la fluidité)
     const updatedReservation = {
       ...reservation,
       status: nextStatus,
@@ -228,10 +184,57 @@ export default function AdminReservations() {
 
     if (closeModal) {
       setSelectedReservation(null);
-      return;
+    } else {
+      setSelectedReservation(updatedReservation);
     }
 
-    setSelectedReservation(updatedReservation);
+    try {
+      // 3. On détermine quelle route API appeler selon l'action
+      let apiRoute = '';
+      let method = 'PUT'; // ou PATCH selon ton backend
+      let bodyData = {};
+
+      if (nextStatus === 'VALIDEE') {
+        // Option A : Ton backend a une route spécifique pour valider
+        // apiRoute = `/api/reservations/${reservation.id}/validate`; 
+        
+        // Option B : Ton backend utilise une mise à jour générale
+        apiRoute = `/api/reservations/${reservation.id}`;
+        bodyData = { statut: 'VALIDEE' };
+      } 
+      else if (nextStatus === 'REFUSEE') {
+        // C'est la route "cancel" que tu as déjà utilisée côté enseignant !
+        apiRoute = `/api/reservations/${reservation.id}/cancel`;
+        method = 'PATCH'; 
+      }
+      else if (nextStatus === 'AJUSTEE') {
+         apiRoute = `/api/reservations/${reservation.id}`;
+         bodyData = { statut: 'AJUSTEE' };
+      }
+
+      // 4. On envoie la requête au serveur
+      await request(apiRoute, {
+        method: method,
+        data: method === 'PUT' ? bodyData : undefined,
+        auth: true
+      });
+
+      console.log(`Réservation ${reservation.id} mise à jour avec le statut ${nextStatus}`);
+
+    } catch (error) {
+      // 5. En cas d'erreur (ex: problème serveur), on annule le changement visuel
+      console.error("Erreur lors du changement de statut:", error);
+      alert("Erreur de connexion : Impossible de modifier le statut dans la base de données.");
+      
+      setReservations((currentReservations) =>
+        currentReservations.map((currentReservation) =>
+          currentReservation.id === reservation.id ? { ...currentReservation, status: oldStatus } : currentReservation
+        )
+      );
+      if (!closeModal) {
+          setSelectedReservation({ ...reservation, status: oldStatus });
+      }
+    }
   }
 
   function handleViewConflicts(reservation) {
@@ -319,7 +322,12 @@ export default function AdminReservations() {
                 </div>
               </div>
 
-              {filteredReservations.length > 0 ? (
+              {/* Gestion de l'affichage du chargement et des erreurs */}
+              {loading ? (
+                <div className="admin-reservations-empty">Chargement des réservations depuis le serveur...</div>
+              ) : error ? (
+                <div className="admin-reservations-empty" style={{ color: "red" }}>{error}</div>
+              ) : filteredReservations.length > 0 ? (
                 <div className="admin-reservations-table-wrap">
                   <table className="admin-reservations-table">
                     <thead>
@@ -341,9 +349,7 @@ export default function AdminReservations() {
                       {filteredReservations.map((reservation) => (
                         <tr
                           key={reservation.id}
-                          className={
-                            reservation.hasConflict ? "admin-reservations-row--conflict" : ""
-                          }
+                          className={reservation.hasConflict ? "admin-reservations-row--conflict" : ""}
                         >
                           <td>
                             <div className="admin-reservations-teacher">

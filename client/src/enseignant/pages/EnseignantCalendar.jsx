@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
-import { getEnseignantCours } from "../../services/api";
+import { getEnseignantCours, getUser } from "../../services/api";
 import "../../styles/enseignant.css";
 
 const VIEW_OPTIONS = ["Jour", "Semaine", "Mois"];
@@ -81,6 +81,7 @@ export default function EnseignantCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState("Semaine");
   const [activeType, setActiveType] = useState("Tous");
+  const currentUser = getUser();
 
   useEffect(() => {
     let isMounted = true;
@@ -185,6 +186,13 @@ export default function EnseignantCalendar() {
         return false;
       })
       .sort((a, b) => getHourNumber(a) - getHourNumber(b));
+
+  const getTeacherName = (course) => {
+    const teacher = String(course.enseignant || "").trim();
+    if (teacher) return teacher;
+    const fallback = `${currentUser?.prenom || ""} ${currentUser?.nom || ""}`.trim();
+    return fallback || "Professeur";
+  };
 
   return (
     <div className="ens-page">
@@ -338,11 +346,11 @@ export default function EnseignantCalendar() {
                                 key={s.id}
                                 className={`ens-session ens-session-${TYPE_COLORS[s.type] ?? "cm"}`}
                                 style={{ height: `${Math.max(durationH * 60 - 4, 44)}px`, top: 2 }}
-                                onClick={() => navigate(`/enseignant/seance/${s.id}`)}
                               >
                                 <div className="ens-session-title">{s.titre ?? s.matiere ?? "Cours"}</div>
                                 <div className="ens-session-room">{s.salle}</div>
                                 <div className="ens-session-time">{debut} – {fin}</div>
+                                <div className="ens-session-teacher">{getTeacherName(s)}</div>
                               </div>
                             );
                           })}
@@ -374,14 +382,13 @@ export default function EnseignantCalendar() {
                           const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, "0")}:00`;
                           const fin = s.fin ?? `${String(s.heureFin ?? 0).padStart(2, "0")}:00`;
                           return (
-                            <button
+                            <div
                               key={s.id}
                               className={`cal-day-event-card ens-session-${TYPE_COLORS[s.type] ?? "cm"}`}
-                              onClick={() => navigate(`/enseignant/seance/${s.id}`)}
                             >
                               <span className="cal-day-event-title">{s.titre ?? s.matiere ?? "Cours"}</span>
                               <span className="cal-day-event-meta">{s.salle} - {debut} - {fin}</span>
-                            </button>
+                            </div>
                           );
                         })
                       )}
@@ -413,14 +420,13 @@ export default function EnseignantCalendar() {
                         {sessions.slice(0, 2).map(s => {
                           const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, "0")}:00`;
                           return (
-                            <button
+                            <div
                               key={s.id}
                               className={`cal-month-item ens-session-${TYPE_COLORS[s.type] ?? "cm"}`}
-                              onClick={() => navigate(`/enseignant/seance/${s.id}`)}
                             >
                               <span>{s.matiere}</span>
                               <small>{debut}</small>
-                            </button>
+                            </div>
                           );
                         })}
                         {sessions.length > 2 && <div className="cal-month-more">+{sessions.length - 2}</div>}

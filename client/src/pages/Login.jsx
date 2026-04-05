@@ -12,7 +12,9 @@ function roleToPath(role) {
 
 export default function Login() {
   const navigate = useNavigate();
+  const supportEmail = "admin.planning@univ.fr";
   const [showInfo, setShowInfo] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -21,6 +23,16 @@ export default function Login() {
   const navigateByRole = useCallback((role) => {
     navigate(roleToPath(role), { replace: true });
   }, [navigate]);
+
+  function handleForgotPassword() {
+    const subject = encodeURIComponent("Réinitialisation du mot de passe");
+    const body = encodeURIComponent(
+      `Bonjour,\n\nJe souhaite réinitialiser mon mot de passe pour le compte: ${email || "(email non renseigné)"}.\n\nMerci.`
+    );
+
+    window.location.href = `mailto:${supportEmail}?subject=${subject}&body=${body}`;
+    setError("Une demande de réinitialisation va s'ouvrir dans votre messagerie.");
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -92,7 +104,7 @@ export default function Login() {
             height="28"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#1e2d4a"
+            stroke="#ffffff"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -147,6 +159,7 @@ export default function Login() {
               <button
                 type="button"
                 className="forgot-link"
+                onClick={handleForgotPassword}
               >
                 Mot de passe oublié ?
               </button>
@@ -168,14 +181,20 @@ export default function Login() {
               </span>
               <input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 className="login-input"
                 placeholder="************"
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <button type="button" className="toggle-password" aria-label="Afficher ou masquer le mot de passe">
+              <button
+                type="button"
+                className="toggle-password"
+                aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                aria-pressed={showPassword}
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
                 <svg
                   width="16"
                   height="16"
@@ -184,6 +203,7 @@ export default function Login() {
                   stroke="#888"
                   strokeWidth="2"
                 >
+                  
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                   <circle cx="12" cy="12" r="3" />
                 </svg>

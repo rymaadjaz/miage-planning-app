@@ -1,6 +1,6 @@
 .profile-page-shell {
   min-height: 100vh;
-  background: #eef1f8;
+  background: linear-gradient(180deg, #add1e6 0%, #c6deee 100%);
 }
 
 .profile-container {
@@ -12,10 +12,10 @@
 }
 
 .profile-card {
-  background: #fff;
-  border: 1px solid #e0e7f3;
-  border-radius: 14px;
-  box-shadow: 0 2px 14px rgba(15, 35, 66, 0.08);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #d6e3f0;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(25, 43, 69, 0.08);
   padding: 20px;
 }
 
@@ -33,7 +33,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1a4f9e;
+  background: #324c82;
   color: #fff;
   font-weight: 800;
   font-size: 1.2rem;
@@ -57,12 +57,13 @@
 }
 
 .profile-item {
-  border: 1px solid #e5ebf6;
-  border-radius: 10px;
+  border: 1px solid #dbe6f2;
+  border-radius: 12px;
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  background: rgba(245, 250, 255, 0.75);
 }
 
 .profile-label {
@@ -96,7 +97,7 @@
 }
 
 .profile-btn.danger {
-  background: #2d4d75;
+  background: #324c82;
   color: #fff;
 }
 

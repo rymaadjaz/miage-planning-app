@@ -7,10 +7,9 @@ const { getDbConnection } = require("./db/database");
 
 const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
-
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
-const cohortesRoutes = require("./routes/cohortesRoutes");
+const cohortesRoutes = require("./routes/cohortesRoutes"); // <-- AJOUTE CETTE LIGNE
 const conflitsRoutes = require("./routes/conflitsRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const disponibilitesRoutes = require("./routes/disponibilitesRoutes");
@@ -24,7 +23,7 @@ const planningRoutes = require("./routes/planningRoutes");
 const reservationsRoutes = require("./routes/reservationsRoutes");
 const sallesRoutes = require("./routes/sallesRoutes");
 const seancesRoutes = require("./routes/seancesRoutes");
-
+const generationRoutes = require('./routes/generationRoutes');
 const app = express();
 const port = Number(process.env.PORT) || 5000;
 
@@ -82,7 +81,7 @@ app.use("/api/planning", planningRoutes);
 app.use("/api/reservations", reservationsRoutes);
 app.use("/api/salles", sallesRoutes);
 app.use("/api/seances", seancesRoutes);
-
+app.use('/api/generation', generationRoutes);
 // Middleware de fin
 app.use(notFound);
 app.use(errorHandler);

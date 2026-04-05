@@ -4,7 +4,13 @@ import Navbar from '../../components/Navbar';
 import { createDemande, getCohortes, getDemandes, getSalles } from '../../services/api';
 import '../../styles/enseignant.css';
 
-const TYPES = ['CM', 'TD', 'TP', 'EXAM'];
+const TYPES = ['CM', 'TD', 'TP', 'EXAMEN'];
+
+function normalizeReservationType(type) {
+  const t = String(type || '').toUpperCase();
+  if (t === 'EXAM') return 'EXAMEN';
+  return t;
+}
 
 export default function EnseignantNouvelleDemandeReservation() {
   const navigate = useNavigate();
@@ -57,7 +63,7 @@ export default function EnseignantNouvelleDemandeReservation() {
     if (!sourceReservation) return;
 
     setForm({
-      type: sourceReservation.type || '',
+      type: normalizeReservationType(sourceReservation.type),
       date: sourceReservation.date || '',
       debut: sourceReservation.debut || '',
       fin: sourceReservation.fin || '',
@@ -71,6 +77,7 @@ export default function EnseignantNouvelleDemandeReservation() {
       fillFromSource(sourceReservationFromNav);
     }
   }, [mode, sourceReservationFromNav]);
+  
 
   useEffect(() => {
     if (mode !== 'DEPLACEMENT') return;
@@ -102,8 +109,9 @@ export default function EnseignantNouvelleDemandeReservation() {
     setError('');
 
     try {
+      // C'est ICI que payload est défini !
       const payload = {
-        type: form.type,
+        type: normalizeReservationType(form.type),
         date: form.date,
         debut: form.debut,
         fin: form.fin,
@@ -114,6 +122,16 @@ export default function EnseignantNouvelleDemandeReservation() {
       if (mode === 'DEPLACEMENT') {
         payload.demande_type = 'DEPLACEMENT';
         payload.source_reservation_id = Number(sourceReservationId);
+        
+        // 🚀 On récupère la réservation sélectionnée pour extraire son seance_id
+        const selectedRes = eligibleReservations.find((d) => String(d.id) === String(sourceReservationId)) || sourceReservationFromNav;
+        
+        // On attache le seance_id au payload pour le backend
+        if (selectedRes && selectedRes.seanceId) {
+          payload.seance_id = Number(selectedRes.seanceId);
+        } else if (selectedRes && selectedRes.seance_id) {
+          payload.seance_id = Number(selectedRes.seance_id);
+        }
       }
 
       await createDemande(payload);

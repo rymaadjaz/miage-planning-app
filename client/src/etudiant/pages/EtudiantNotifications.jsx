@@ -65,7 +65,7 @@ export default function EtudiantNotifications() {
   };
 
   return (
-    <div className="ens-page">
+    <div className="ens-page etu-notif-page">
       <Navbar onNotifications={() => {}} />
 
       <div className="ens-content etu-notif-content">

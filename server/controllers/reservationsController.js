@@ -177,17 +177,13 @@ async function buildCreatePayload(body, currentUser) {
     seance_id: isMove ? seanceId : null,
     created_by: currentUser?.id || null,
     motif: body.motif || null,
-    date_souhaitee: isMove ? null : body.date || null,
-    heure_debut_souhaitee: isMove ? null : body.debut || null,
+    date_souhaitee: body.date || null,
+    heure_debut_souhaitee: body.debut || null,
     duree_souhaitee:
-      isMove || !body.debut || !body.fin
+      !body.debut || !body.fin
         ? null
         : computeDuration(body.debut, body.fin),
-    type_seance_souhaitee: isMove
-      ? null
-      : body.type
-      ? toUpper(body.type)
-      : null,
+    type_seance_souhaitee: body.type ? toUpper(body.type) : null,
     cohorte_id: cohorteId,
     enseignant_id: enseignantId,
   };
@@ -214,17 +210,24 @@ exports.getById = async (req, res) => {
   res.json(row);
 };
 
+// 🚀 LA FAMEUSE CORRECTION (CETTE FOIS UNIQUE DANS LE FICHIER !)
 exports.getFrontDemandes = async (req, res) => {
   const rows = await reservationModel.findFrontDemandes();
 
+  const userRole = String(req.user?.role || "").toLowerCase();
+  const userId = req.user?.id ? Number(req.user.id) : null;
+
   const filtered =
-    String(req.user?.role || "").toLowerCase() === "administratif"
+    userRole === "administratif"
       ? rows
-      : rows.filter((r) => Number(r.enseignant_id) === Number(req.user.id));
+      : rows.filter((r) => Number(r.enseignant_id) === userId);
 
   const formatted = filtered.map((r) => {
-    const heureDebut = r.heureDebut || r.heure_debut_souhaitee || "00:00";
-    const duree = Number(r.duree || r.duree_souhaitee || 0);
+    // Priorité absolue aux champs souhaités
+    const heureDebut = r.heure_debut_souhaitee || r.heureDebut || "00:00";
+    const duree = Number(r.duree_souhaitee || r.duree || 0);
+    const dateAffichage = r.date_souhaitee || r.dateSeance || "";
+    const typeAffichage = r.type_seance_souhaitee || r.typeSeance || "";
 
     return {
       id: r.id,
@@ -234,8 +237,8 @@ exports.getFrontDemandes = async (req, res) => {
       enseignantId: r.enseignant_id || null,
       statut: formatFrontStatus(r.statut),
       demandeType: formatFrontDemandeType(r.type_demande),
-      type: formatFrontType(r.typeSeance || r.type_seance_souhaitee),
-      date: r.dateSeance || r.date_souhaitee || "",
+      type: formatFrontType(typeAffichage),
+      date: dateAffichage,
       debut: toHHMM(heureDebut),
       fin: addMinutes(heureDebut, duree),
       duree,

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
+import BackButton from '../../components/BackButton';
 import { getEtudiantCours, getUser } from '../../services/api';
 import '../../styles/enseignant.css';
 import '../../styles/etudiant.css';
@@ -88,6 +89,7 @@ function getHourNumber(cours) {
 
 export default function EtudiantPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [cours, setCours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState('');
@@ -96,6 +98,8 @@ export default function EtudiantPage() {
   const [activeType, setActiveType] = useState('Tous');
   const [typeFilterLabel, setTypeFilterLabel] = useState('Tous les type');
   const [ensFilter, setEnsFilter] = useState('Tous les enseignants');
+
+  const openedFromEnseignant = Boolean(location.state?.fromEnseignant);
 
   useEffect(() => {
     let isMounted = true;
@@ -106,14 +110,41 @@ export default function EtudiantPage() {
       try {
         // 1. On récupère l'étudiant connecté
         const user = getUser();
-        
-        // 2. On récupère son ID de cohorte (si l'API Auth ne le renvoie pas encore, on force à 2 pour tester les M1)
-        const userCohorteId = user?.cohorte_id || 2; 
-
-        // 3. On demande les cours spécifiques à SA cohorte
+        const userCohorteId = user?.cohorte_id || 1;    
+        // 2. On demande les cours à l'API
         const rows = await getEtudiantCours({ cohorteId: userCohorteId });
+        console.log("📥 DONNÉES BRUTES REÇUES DE L'API :", rows);
+        // 🚀 3. LE TRADUCTEUR (La correction est ici)
+        const coursFormates = rows.map(c => {
+          // On récupère l'heure de base
+          const heureDebutBase = c.debut || c.heureDebut;
+          let heureFinCalc = c.fin;
+          
+          // Si on a l'heure de début et la durée (ex: 120 min), on calcule l'heure de fin !
+          if (heureDebutBase && c.duree && !c.fin) {
+            const [h, m] = heureDebutBase.split(':').map(Number);
+            const minutesTotales = h * 60 + m + Number(c.duree);
+            const finH = Math.floor(minutesTotales / 60);
+            const finM = minutesTotales % 60;
+            heureFinCalc = `${String(finH).padStart(2, '0')}:${String(finM).padStart(2, '0')}`;
+          }
+
+          // On renvoie un objet "propre" pour le calendrier
+          return {
+            ...c,
+            date: c.date || c.dateSeance,         // BDD: dateSeance -> Calendrier: date
+            debut: heureDebutBase,                // BDD: heureDebut -> Calendrier: debut
+            fin: heureFinCalc,                    // Heure de fin calculée
+            type: c.type || c.typeSeance,         // BDD: typeSeance -> Calendrier: type
+            matiere: c.matiere || "Matière",      
+            salle: c.salle || "Salle",
+            enseignant: c.enseignant || "Professeur"
+          };
+        });
+
+        // On donne les données traduites à React
+        if (isMounted) setCours(coursFormates);
         
-        if (isMounted) setCours(rows);
       } catch (error) {
         if (isMounted) {
           setCours([]);
@@ -234,6 +265,12 @@ export default function EtudiantPage() {
       />
 
       <div className="ens-content">
+        {openedFromEnseignant && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+            <BackButton label="Retour enseignant" to="/enseignant" fallback="/enseignant" />
+          </div>
+        )}
+
         {loading && <div className="ens-card" style={{ marginBottom: 12 }}>Chargement des cours depuis l'API...</div>}
         {!loading && apiError && (
           <div className="ens-card" style={{ marginBottom: 12, color: '#b42318' }}>
@@ -374,7 +411,6 @@ export default function EtudiantPage() {
                                 key={s.id}
                                 className={`ens-session ens-session-${TYPE_COLORS[s.type] ?? 'cm'}`}
                                 style={{ height: `${Math.max(durationH * 60 - 4, 44)}px`, top: 2 }}
-                                onClick={() => navigate(`/etudiant/seance/${s.id}`)}
                               >
                                 <div className="ens-session-title">{s.titre ?? s.matiere ?? 'Cours'}</div>
                                 <div className="ens-session-room">{s.salle}</div>
@@ -412,14 +448,13 @@ export default function EtudiantPage() {
                           const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, '0')}:00`;
                           const fin = s.fin ?? `${String(s.heureFin ?? 0).padStart(2, '0')}:00`;
                           return (
-                            <button
+                            <div
                               key={s.id}
                               className={`cal-day-event-card ens-session-${TYPE_COLORS[s.type] ?? 'cm'}`}
-                              onClick={() => navigate(`/etudiant/seance/${s.id}`)}
                             >
                               <span className="cal-day-event-title">{s.titre ?? s.matiere ?? 'Cours'}</span>
                               <span className="cal-day-event-meta">{s.salle} - {debut} - {fin}</span>
-                            </button>
+                            </div>
                           );
                         })
                       )}
@@ -451,14 +486,13 @@ export default function EtudiantPage() {
                         {sessions.slice(0, 2).map(s => {
                           const debut = s.debut ?? `${String(s.heureDebut ?? 0).padStart(2, '0')}:00`;
                           return (
-                            <button
+                            <div
                               key={s.id}
                               className={`cal-month-item ens-session-${TYPE_COLORS[s.type] ?? 'cm'}`}
-                              onClick={() => navigate(`/etudiant/seance/${s.id}`)}
                             >
                               <span>{s.matiere}</span>
                               <small>{debut}</small>
-                            </button>
+                            </div>
                           );
                         })}
                         {sessions.length > 2 && <div className="cal-month-more">+{sessions.length - 2}</div>}

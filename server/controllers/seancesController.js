@@ -67,6 +67,7 @@ exports.create = async (req, res) => {
     matiere_id = null,
     cohorte_id = null,
     enseignant_id = null,
+    salle_id = null, // 🚀 RÉCUPÉRÉ ICI
   } = req.body;
 
   if (!dateSeance || !heureDebut || !duree || !typeSeance) {
@@ -115,6 +116,7 @@ exports.create = async (req, res) => {
     matiere_id: matiere_id ? Number(matiere_id) : null,
     cohorte_id: cohorte_id ? Number(cohorte_id) : null,
     enseignant_id: enseignant_id ? Number(enseignant_id) : null,
+    salle_id: salle_id ? Number(salle_id) : null, // 🚀 TRANSMIS ICI
   });
 
   const created = await seanceModel.findById(result.lastID);

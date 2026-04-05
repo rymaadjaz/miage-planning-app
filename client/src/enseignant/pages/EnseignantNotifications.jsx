@@ -58,7 +58,7 @@ export default function EnseignantNotifications() {
   const markAllRead = () => setItems(prev => prev.map(n => ({ ...n, status: 'lu' })));
 
   return (
-    <div className="ens-page">
+    <div className="ens-page ens-notif-page">
       <Navbar />
 
       <div className="ens-content" style={{ maxWidth: 680 }}>

@@ -10,13 +10,11 @@ import EnseignantCalendar from './enseignant/pages/EnseignantCalendar';
 import EnseignantNotifications from './enseignant/pages/EnseignantNotifications';
 import EnseignantDemandes from './enseignant/pages/EnseignantDemandes';
 import EnseignantNouvelleDemandeReservation from './enseignant/pages/EnseignantNouvelleDemandeReservation';
-import EnseignantSeanceDetails from './enseignant/pages/EnseignantSeanceDetails';
 import EnseignantCohortes from './enseignant/pages/EnseignantCohortes';
 
 // Étudiant
 import EtudiantPage from './etudiant/pages/EtudiantPage';
 import EtudiantNotifications from './etudiant/pages/EtudiantNotifications';
-import EtudiantSeanceDetails from './etudiant/pages/EtudiantSeanceDetails';
 
 // Admin
 import AdminLayout from './admin/layout/AdminLayout';
@@ -45,12 +43,12 @@ function App() {
           path="/enseignant/demandes/nouvelle-reservation"
           element={<EnseignantNouvelleDemandeReservation />}
         />
-        <Route path="/enseignant/seance/:id" element={<EnseignantSeanceDetails />} />
+        <Route path="/enseignant/seance/:id" element={<Navigate to="/enseignant" replace />} />
         <Route path="/enseignant/cohortes" element={<EnseignantCohortes />} />
 
         <Route path="/etudiant" element={<EtudiantPage />} />
         <Route path="/etudiant/notifications" element={<EtudiantNotifications />} />
-        <Route path="/etudiant/seance/:id" element={<EtudiantSeanceDetails />} />
+        <Route path="/etudiant/seance/:id" element={<Navigate to="/etudiant" replace />} />
 
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />

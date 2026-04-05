@@ -4,9 +4,9 @@ exports.findAll = () =>
   dbAll(`
     SELECT *
     FROM Seance
+    WHERE statut = 'VALIDE'
     ORDER BY dateSeance ASC, heureDebut ASC
   `);
-
 exports.findById = (id) =>
   dbGet(
     `
@@ -49,6 +49,7 @@ exports.create = ({
   matiere_id = null,
   cohorte_id = null,
   enseignant_id = null,
+  salle_id = null, // 🚀 AJOUTÉ
 }) =>
   dbRun(
     `
@@ -61,9 +62,10 @@ exports.create = ({
       description,
       matiere_id,
       cohorte_id,
-      enseignant_id
+      enseignant_id,
+      salle_id -- 🚀 AJOUTÉ
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     [
       dateSeance,
@@ -75,6 +77,7 @@ exports.create = ({
       matiere_id,
       cohorte_id,
       enseignant_id,
+      salle_id, // 🚀 AJOUTÉ
     ]
   );
 
@@ -90,6 +93,7 @@ exports.update = (
     matiere_id,
     cohorte_id,
     enseignant_id,
+    salle_id, // 🚀 AJOUTÉ
   }
 ) =>
   dbRun(
@@ -104,7 +108,8 @@ exports.update = (
       description = ?,
       matiere_id = ?,
       cohorte_id = ?,
-      enseignant_id = ?
+      enseignant_id = ?,
+      salle_id = ? -- 🚀 AJOUTÉ
     WHERE id = ?
     `,
     [
@@ -117,10 +122,10 @@ exports.update = (
       matiere_id,
       cohorte_id,
       enseignant_id,
+      salle_id, // 🚀 AJOUTÉ
       id,
     ]
   );
-
 exports.remove = (id) =>
   dbRun(
     `
