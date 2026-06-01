@@ -1,249 +1,216 @@
-# Plateforme de Gestion Intégrée des Emplois du Temps Universitaires
-## Projet Universitaire MIAGE 2026
+<div align="center">
 
-## Description
+# 🎓 MIAGE Planning App
 
-Ce projet a pour objectif de concevoir et développer une **application web de gestion et de planification des emplois du temps universitaires**.
+### Plateforme de Gestion Intégrée des Emplois du Temps Universitaires
 
-L’application permet de centraliser les informations liées aux **cours**, **examens**, **salles**, **utilisateurs** et **réservations**, afin d’améliorer l’organisation académique au sein d’un établissement universitaire.
+![Version](https://img.shields.io/badge/version-1.0.0-6C63FF?style=for-the-badge)
+![Licence](https://img.shields.io/badge/licence-Universitaire-blueviolet?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-En%20développement-orange?style=for-the-badge)
+
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+
+</div>
+
+---
+
+## 📋 Description
+
+> **Application web de gestion et de planification des emplois du temps universitaires** — centralisant cours, examens, salles, utilisateurs et réservations pour améliorer l'organisation académique.
 
 Elle répond à plusieurs problématiques fréquentes :
 
-- **Complexité de planification** : gérer de nombreux créneaux sans erreurs
-- **Multiplicité des acteurs** : étudiants, enseignants et administratifs
-- **Gestion des conflits** : éviter les chevauchements de salles, de cours ou de ressources
-
-**Objectif principal :** proposer un système **clair, structuré et automatisé** pour faciliter la gestion des emplois du temps universitaires.
-
----
-
-## Fonctionnalités principales
-
-L’application propose plusieurs fonctionnalités permettant de gérer efficacement l’organisation universitaire :
-
-- **Gestion des cours, examens et événements**
-- **Consultation personnalisée des emplois du temps**
-- **Réservation de salles**
-- **Détection des conflits de planification**
-- **Gestion des utilisateurs et des ressources**
-- **Coordination entre les différents profils utilisateurs**
-- **Génération automatique du planning**
+| Problématique | Solution apportée |
+|---|---|
+| 🧩 **Complexité de planification** | Génération automatique des créneaux |
+| 👥 **Multiplicité des acteurs** | Espaces dédiés par profil (étudiant, enseignant, admin) |
+| ⚠️ **Gestion des conflits** | Détection automatique des chevauchements |
 
 ---
 
-## Fonctionnalités par profil
+## ✨ Fonctionnalités principales
 
-### Étudiant
-- Consultation du planning personnel
-- Visualisation des séances, examens et événements
-- Consultation des notifications
-
-### Enseignant
-- Consultation du planning enseignant
-- Gestion des disponibilités
-- Consultation des demandes et réservations
-- Suivi des notifications
-
-### Administratif
-- Tableau de bord avec indicateurs globaux
-- Gestion des réservations
-- Gestion des salles
-- Gestion des utilisateurs
-- Gestion des conflits
-- Déclenchement de la génération automatique du planning
+<table>
+<tr>
+<td>📅 Gestion des cours, examens et événements</td>
+<td>👤 Consultation personnalisée des emplois du temps</td>
+</tr>
+<tr>
+<td>🏫 Réservation de salles</td>
+<td>🔍 Détection des conflits de planification</td>
+</tr>
+<tr>
+<td>⚙️ Gestion des utilisateurs et des ressources</td>
+<td>🤝 Coordination entre les différents profils</td>
+</tr>
+<tr>
+<td colspan="2" align="center">🤖 <strong>Génération automatique du planning</strong></td>
+</tr>
+</table>
 
 ---
 
-## Démonstration de connexion
+## 🎭 Fonctionnalités par profil
 
-L’application propose une **page de connexion unique**.  
-Après authentification, l’utilisateur est redirigé automatiquement vers son espace selon son rôle.
+<table>
+<tr>
+<th align="center">🎓 Étudiant</th>
+<th align="center">👨‍🏫 Enseignant</th>
+<th align="center">🛠️ Administratif</th>
+</tr>
+<tr>
+<td>
+• Consultation du planning personnel<br>
+• Visualisation des séances, examens et événements<br>
+• Consultation des notifications
+</td>
+<td>
+• Consultation du planning enseignant<br>
+• Gestion des disponibilités<br>
+• Consultation des demandes et réservations<br>
+• Suivi des notifications
+</td>
+<td>
+• Tableau de bord avec indicateurs globaux<br>
+• Gestion des réservations<br>
+• Gestion des salles<br>
+• Gestion des utilisateurs<br>
+• Gestion des conflits<br>
+• Génération automatique du planning
+</td>
+</tr>
+</table>
 
-### Comptes de démonstration
+---
 
-- **Étudiant** : `edris.youssef@univ.fr`
-- **Enseignant** : `prof.beduneau@univ.fr`
-- **Administratif** : `admin.planning@univ.fr`
+## 🔐 Démonstration de connexion
 
-### Mot de passe de test
+L'application propose une **page de connexion unique**. Après authentification, l'utilisateur est redirigé automatiquement vers son espace selon son rôle.
 
-- `changeme`
+### 👥 Comptes de démonstration
 
-### Parcours de connexion
+| Rôle | Email | Mot de passe |
+|------|-------|-------------|
+| 🎓 Étudiant | `edris.youssef@univ.fr` | `changeme` |
+| 👨‍🏫 Enseignant | `prof.beduneau@univ.fr` | `changeme` |
+| 🛠️ Administratif | `admin.planning@univ.fr` | `changeme` |
 
+### 🔄 Parcours de connexion
+
+```
 1. Ouvrir la page de connexion
-2. Saisir l’adresse email + mot de passe
-3. Fonctionnalité de mot de passe oublié :
-- envoie un lien sécurisé par e-mail pour permettre à l’utilisateur de réinitialiser son mot de passe depuis sa messagerie par défaut.
+2. Saisir l'adresse email + mot de passe
+3. Mot de passe oublié → lien sécurisé envoyé par e-mail
 
-
-- **Étudiant** → tableau de bord et planning personnel
-- **Enseignant** → outils de consultation et de gestion
-- **Administratif** → dashboard d’administration
-
----
-
-## Analyse fonctionnelle
-
-### Acteurs
-
-- **Étudiant** : consulte son emploi du temps
-- **Enseignant** : consulte son planning et gère certaines demandes
-- **Administratif** : gère l’ensemble du système
-
-### Objectifs du système
-
-- Optimiser l’organisation universitaire
-- Centraliser les données liées au planning
-- Réduire les erreurs de planification
-- Automatiser certaines tâches de gestion
-
----
-
-## Architecture technique
-
-### Stack utilisée
-
-#### Frontend
-- React.js
-- React Router DOM
-- CSS
-
-#### Backend
-- Node.js
-- Express.js
-- JWT pour l’authentification
-
-#### Base de données
-- SQLite
-
-#### Outils
-- Git / GitHub
-- VS Code
-- Postman
-
-### Architecture du projet
-
-Le projet suit une architecture de type :
-
-- **Client / Serveur**
-- **MVC (Model - Controller - Routes)**
-- **API REST**
-
----
-
-## Structure du projet
-
-```bash
-miage-planning-app/
-├── client/
-│   ├── public/
-│   └── src/
-│       ├── admin/
-│       │   ├── hooks/
-│       │   ├── layout/
-│       │   ├── pages/
-│       │   └── styles/
-│       ├── assets/
-│       ├── components/
-│       ├── context/
-│       ├── data/
-│       ├── enseignant/
-│       │   └── pages/
-│       ├── etudiant/
-│       │   └── pages/
-│       ├── pages/
-│       ├── services/
-│       ├── styles/
-│       ├── App.css
-│       ├── App.jsx
-│       ├── index.css
-│       └── index.js
-│
-├── docs/
-│
-├── server/
-│   ├── controllers/
-│   ├── db/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── services/
-│   ├── utils/
-│   ├── server.js
-│   └── database.db
-│
-├── journal.txt
-└── README.md
+   ┌───────────────────────────────────────────────┐
+   │  Étudiant      → tableau de bord + planning   │
+   │  Enseignant    → outils de consultation        │
+   │  Administratif → dashboard d'administration   │
+   └───────────────────────────────────────────────┘
 ```
 
 ---
 
-##  Répartition Frontend
+## 🏗️ Architecture technique
 
-### 👩‍💻 Belkacemi CIRINE
-- Réalisation de la maquette / conception visuelle de l’interface
-- Login  
-- Navbar  
-- Navigation/affichage du planning  
-- Interface enseignant  
-- Interface étudiant
-- Intégration de la logique des pages et des interactions utilisateur
+<div align="center">
 
-### 👩‍💻 Lina EL HATHOUT
-- Mise en place de la structure frontend
-- Développement de l’interface administrateur :
-- Dashboard administrateur
-- Gestion des réservations
-- Gestion des utilisateurs
-- Gestion des salles
-- Gestion des conflits
+```
+┌─────────────────────────────────────────────────────┐
+│                    CLIENT (React.js)                 │
+│         React Router DOM  ·  CSS Modules             │
+└─────────────────────────┬───────────────────────────┘
+                          │  API REST (JSON)
+┌─────────────────────────▼───────────────────────────┐
+│                SERVER (Node.js + Express)             │
+│         JWT Auth  ·  MVC  ·  Services                │
+└─────────────────────────┬───────────────────────────┘
+                          │
+┌─────────────────────────▼───────────────────────────┐
+│                   BASE DE DONNÉES                    │
+│                      SQLite                          │
+└─────────────────────────────────────────────────────┘
+```
 
+</div>
 
-## 🔧 Backend & Logique
+### 🔧 Stack technique
 
-### 👩‍💻 Adjaz RYMA
-- API REST (CRUD : salles, cours, cohortes, conflits, matières, notifications, disponibilités, dashboard, équipements, historiques)
-- Gestion du planning (étudiant / enseignant / administrateur) 
-- Gestion des conflits
-- Gestion des reservations
-
-### 👨‍💻 Youssef EDRIS
-- Authentification & Sécurité (JWT)  
-- Détection des conflits  
-- Base de données
-- Gestion des conflits
-- Gestion des reservations
-- Génération automatique EDT
-
-
-##  Architecture Technique
-
-### Stack
-- Frontend : React.js  
-- Backend : Node.js + Express  
-- Base de données : SQLite  
-
-### Architecture
-- Client / Serveur  
-- MVC (Model - Controller - Routes)  
-- API REST  
+| Couche | Technologie | Badge |
+|--------|------------|-------|
+| Frontend | React.js + React Router | ![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black) |
+| Backend | Node.js + Express.js | ![Node](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white) |
+| Auth | JWT | ![JWT](https://img.shields.io/badge/JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white) |
+| Base de données | SQLite | ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white) |
+| Versioning | Git / GitHub | ![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white) |
+| IDE | VS Code | ![VSCode](https://img.shields.io/badge/VS%20Code-007ACC?style=flat-square&logo=visualstudiocode&logoColor=white) |
+| Tests API | Postman | ![Postman](https://img.shields.io/badge/Postman-FF6C37?style=flat-square&logo=postman&logoColor=white) |
 
 ---
 
-##  Installation
+## 📁 Structure du projet
+
+```
+miage-planning-app/
+├── 📁 client/
+│   ├── 📁 public/
+│   └── 📁 src/
+│       ├── 📁 admin/
+│       │   ├── hooks/
+│       │   ├── layout/
+│       │   ├── pages/
+│       │   └── styles/
+│       ├── 📁 assets/
+│       ├── 📁 components/
+│       ├── 📁 context/
+│       ├── 📁 data/
+│       ├── 📁 enseignant/
+│       │   └── pages/
+│       ├── 📁 etudiant/
+│       │   └── pages/
+│       ├── 📁 pages/
+│       ├── 📁 services/
+│       ├── 📁 styles/
+│       ├── App.jsx
+│       └── index.js
+│
+├── 📁 docs/
+│
+├── 📁 server/
+│   ├── 📁 controllers/
+│   ├── 📁 db/
+│   ├── 📁 middleware/
+│   ├── 📁 models/
+│   ├── 📁 routes/
+│   ├── 📁 services/
+│   ├── 📁 utils/
+│   ├── server.js
+│   └── database.db
+│
+├── 📄 journal.txt
+└── 📄 README.md
+```
+
+---
+
+## 🚀 Installation
 
 ```bash
+# Cloner le dépôt
 git clone https://github.com/Edris-Y/miage-planning-app
 cd miage-planning-app
 
-# Backend
+# ⚙️ Backend
 cd server
 npm install
 node db/initDb.js
 npm run dev
 
-# Frontend
+# 🎨 Frontend
 cd ../client
 npm install
 npm start
@@ -251,30 +218,70 @@ npm start
 
 ---
 
-##  Organisation du projet
+## 👨‍💻 Équipe & Répartition
 
-### Livrables
-- Code source  
-- Journal Git  
-- Documentation  
-- Démo  
-
-### Soutenance
-- Démo  
-- Présentation  
+<table>
+<tr>
+<th colspan="2" align="center">🎨 Frontend</th>
+</tr>
+<tr>
+<td align="center"><strong>Belkacemi CIRINE</strong></td>
+<td>
+• Maquette & conception visuelle<br>
+• Login · Navbar · Navigation planning<br>
+• Interface enseignant & étudiant<br>
+• Intégration logique & interactions utilisateur
+</td>
+</tr>
+<tr>
+<td align="center"><strong>Lina EL HATHOUT</strong></td>
+<td>
+• Mise en place de la structure frontend<br>
+• Dashboard administrateur<br>
+• Gestion des réservations, utilisateurs, salles, conflits
+</td>
+</tr>
+<tr>
+<th colspan="2" align="center">🔧 Backend & Logique</th>
+</tr>
+<tr>
+<td align="center"><strong>Adjaz RYMA</strong></td>
+<td>
+• API REST complète (CRUD : salles, cours, cohortes, conflits, matières, notifications, disponibilités, dashboard, équipements, historiques)<br>
+• Gestion du planning (étudiant / enseignant / admin)<br>
+• Gestion des conflits & réservations
+</td>
+</tr>
+<tr>
+<td align="center"><strong>Youssef EDRIS</strong></td>
+<td>
+• Authentification & Sécurité (JWT)<br>
+• Détection des conflits<br>
+• Base de données & schéma<br>
+• Gestion des conflits & réservations<br>
+• Génération automatique EDT
+</td>
+</tr>
+</table>
 
 ---
 
-## 📌 Équipe
+## 📦 Livrables
 
-- Lina EL HATHOUT  
-- Youssef EDRIS  
-- Belkacemi CIRINE  
-- Adjaz RYMA  
+- [x] 💻 Code source
+- [x] 📓 Journal Git
+- [x] 📄 Documentation
+- [x] 🎬 Démo
+- [x] 🎤 Présentation soutenance
 
+---
 
+<div align="center">
 
+**Projet universitaire MIAGE 2026**
 
-##  Licence
+![GitHub](https://img.shields.io/badge/GitHub-Edris--Y%2Fmiage--planning--app-181717?style=for-the-badge&logo=github&logoColor=white)
 
-Projet universitaire MIAGE 2026.
+*Lina EL HATHOUT · Youssef EDRIS · Belkacemi CIRINE · Adjaz RYMA*
+
+</div>
